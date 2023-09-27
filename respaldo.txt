@@ -1,0 +1,68 @@
+misArchivos         = encontrarArchivos(ruta_carpeta)
+miArchivoPrueba1     = "archivos/"+misArchivos[0]  #Done
+miArchivoPrueba2     = "archivos/"+misArchivos[1]  #Done
+miArchivoPrueba3     = "archivos/"+misArchivos[2]  #Done
+miArchivoPrueba4     = "archivos/"+misArchivos[3]
+miArchivoPrueba5     = "archivos/"+misArchivos[4]
+
+
+textoArchivo1        = openWithPumbler(miArchivoPrueba1, myPage=3)
+textoArchivo2        = openWithPumbler(miArchivoPrueba2, myPage=2)
+textoArchivo3        = openWithPumbler(miArchivoPrueba3)
+textoArchivo4        = openWithPumbler(miArchivoPrueba4)
+textoArchivo5        = openWithPumbler(miArchivoPrueba5)
+
+
+#print(textoArchivo1)
+
+secunciaDeInicio1    = "NO. REFERENCIA FECHA CONCEPTO DÉBITOS CRÉDITOS"
+secunciaDeFin1       = "ÚLTIMA LÍNEA"
+
+secunciaDeInicio2    = "************4561 DIEGO SAYED/"
+secunciaDeFin2       = "Desglose pagos del mes"
+
+secunciaDeInicio3    = "Movimiento Contable"
+secunciaDeFin3       = "Última línea"
+
+secunciaDeInicio4    = "Saldo anterior: : "
+secunciaDeFin4       = "R E S U M E N -- D E L -- E S T A D O -- D E -- C U E N T A -- T A R J E T A - P R I N C I P A L"
+
+secunciaDeInicio5    = "XXXX-XXXX-XXXX-4158"
+secunciaDeFin5       = "XXXX-XXXX-XXXX-5997"
+
+textoFiltrado1       = filterText(textoArchivo1, secunciaDeInicio1, secunciaDeFin1)
+textoFiltrado1       = splitMyText(textoFiltrado1, dateIsTextLike=True)
+
+textoFiltrado2       = filterText(textoArchivo2, secunciaDeInicio2, secunciaDeFin2)
+textoFiltrado2       = splitMyText(textoFiltrado2, dateIsTextLike=True)
+
+textoFiltrado3       = filterText(textoArchivo3, secunciaDeInicio3, secunciaDeFin3)
+textoFiltrado3       = splitMyText(textoFiltrado3)
+
+textoFiltrado4       = filterText(textoArchivo4, secunciaDeInicio4, secunciaDeFin4)
+textoFiltrado4       = splitMyText(textoFiltrado4,miSize=False)
+textoFiltrado4       = elementosRepetidos(textoFiltrado4, lenMat= 7)
+
+textoFiltrado5       = filterText(textoArchivo5, secunciaDeInicio5, secunciaDeFin5)
+textoFiltrado5       = splitMyText(textoFiltrado5)
+textoFiltrado5       = elementosRepetidos(textoFiltrado5, lenMat= 3)
+
+
+# Create the pandas DataFrame
+
+df1 = createDataFrame("BAC ahorros", textoFiltrado1)    #DONE
+df2 = createDataFrame("BAC ahorros", textoFiltrado2)    #DONE
+df3 = createDataFrame("BCR ahorros", textoFiltrado3)
+df4 = createDataFrame("BCR cred", textoFiltrado4)       #DONE   
+df5 = createDataFrame("PROMERICA", textoFiltrado5)      #DONE
+
+
+# print dataframe.
+print(df1, "\n")
+print(df2, "\n")
+print(df3, "\n")
+print(df4, "\n")
+print(df5, "\n")
+
+#print(textoArchivo3)
+
