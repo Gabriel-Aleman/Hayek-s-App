@@ -4,9 +4,9 @@ import PyPDF2
 import os
 import re
 import pandas as pd
-from tkinter import *
-import pdfplumber
 import matplotlib.pyplot as plt
+import pdfplumber
+import datetime as dt
 
 #Variables globales:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -14,68 +14,7 @@ ruta_carpeta = "/Users/gabri/OneDrive/Escritorio/PROYECTO/archivos"
 
 #Funciones:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
-def elementosRepetidos(miMatriz, lenMat, indice_pred=-3):
-    miMatriz1 = miMatriz
-    for i in range(len(miMatriz1)):
-        if (len(miMatriz1[i])>lenMat):
-            # Definir el rango que deseas eliminar utilizando índices negativos (por ejemplo, eliminar los últimos 3 elementos)
-            dif = len(miMatriz1[i])-lenMat
-            indice_fin = indice_pred
-            indice_inicio = indice_fin-dif+1
 
-            # Calcular los índices positivos equivalentes
-            indice_inicio = len(miMatriz1[i]) + indice_inicio
-            indice_fin = len(miMatriz1[i]) + indice_fin
-
-            # Eliminar el rango especificado de la lista original
-            del miMatriz1[i][indice_inicio:indice_fin+1]
-
-            # La lista original ahora contiene los elementos sin el rango especificado
-    return miMatriz1
-
-
-
-def reSizeMatrix(miMatriz, popIndex=-2):
-    miMatriz1 = miMatriz
-    minLen=len(miMatriz1[0])
-    
-    for element in miMatriz1:
-        if(len(element)<minLen):
-            minLen = len(element)
-    
-    for i in range(len(miMatriz1)):
-        if(len(miMatriz1[i])>minLen):
-            miMatriz1[i].pop(popIndex)
-    
-    return miMatriz1
-
-def delSpace(MiString, dateIsTextLike):
-
-    original_string = MiString
-    string1 = list(original_string)
-    modString = False
-    k=0
-
-    for i in range(len(string1)):
-        if(string1[i].isalpha()): #Se ha recibido una letra:
-            if(not dateIsTextLike): #Revisar que la letra no corresponde a una fecha
-                modString = True
-            else:
-                k+=1
-                if(k==3):
-                    dateIsTextLike =False
-                continue
-
-        if(modString):
-            if (string1[i].isdigit() or string1[i] == "("):
-                string1[i-1] = " "
-                break
-            
-            elif(string1[i] == " "):
-                string1[i] = "_"
-
-    original_string = "".join(string1)
-    return original_string
 
 """
 encontrarArchivos: Función para ubicar los archivos con los que se pretende
@@ -106,6 +45,7 @@ readFile: Función para leer el contenido del archivo PDF
 
 inputs:
     -fileName: Nombre del archivo.
+    -page: Página a leer (predeterminado ninguna)
 otputs:
     -texto: Contenido del archivo.
 """
@@ -133,6 +73,15 @@ def readFile(fileName, page=None):
 
     return texto
 
+"""
+openWithPumbler: Función para leer el contenido del archivo PDF
+
+inputs:
+    -fileName: Nombre del archivo.
+    -page: Página a leer (predeterminado ninguna)
+otputs:
+    -texto: Contenido del archivo.
+"""
 def openWithPumbler(fileName, myPage=None):
     # Abre el archivo PDF
     texto=""
@@ -148,6 +97,7 @@ def openWithPumbler(fileName, myPage=None):
             texto = pagina_deseada.extract_text()
     return texto
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 """
 filterText: Función para filtrar parte del texto.
 
@@ -158,6 +108,112 @@ inputs:
     -en: Secuencia de fin.
 otputs:
     -string: texto filtrado.
+"""
+
+"""
+elementosRepetidos: Función para eliminar elementos de una fila
+de una columna.
+
+inputs:
+    -miMatriz: Matriz de entrada.
+    -lenMat: Longitud que se quiere para cada fila.
+    -indice_pred: Indice a partir del cula eliminar elementos
+    (predeterminado -3).
+otputs:
+    -miMatriz1: La smatriz ya formateada.
+"""
+def elementosRepetidos(miMatriz, lenMat, indice_pred=-3):
+    miMatriz1 = miMatriz
+    for i in range(len(miMatriz1)):
+        if (len(miMatriz1[i])>lenMat):
+            # Definir el rango que deseas eliminar utilizando índices negativos (por ejemplo, eliminar los últimos 3 elementos)
+            dif = len(miMatriz1[i])-lenMat
+            indice_fin = indice_pred
+            indice_inicio = indice_fin-dif+1
+
+            # Calcular los índices positivos equivalentes
+            indice_inicio = len(miMatriz1[i]) + indice_inicio
+            indice_fin = len(miMatriz1[i]) + indice_fin
+
+            # Eliminar el rango especificado de la lista original
+            del miMatriz1[i][indice_inicio:indice_fin+1]
+
+            # La lista original ahora contiene los elementos sin el rango especificado
+    return miMatriz1
+
+
+"""
+reSizeMatrix: Función para eliminar columnas adicionales no deseadas
+de una matriz.
+
+inputs:
+    -miMatriz: Matriz de entrada.
+    -popIndex: Indice a partir del cual eliminar elementos (predeterminado -2)
+otputs:
+    -miMatriz1: La smatriz ya formateada.
+"""
+def reSizeMatrix(miMatriz, popIndex=-2):
+    miMatriz1 = miMatriz
+    minLen=len(miMatriz1[0])
+    
+    for element in miMatriz1:
+        if(len(element)<minLen):
+            minLen = len(element)
+    
+    for i in range(len(miMatriz1)):
+        if(len(miMatriz1[i])>minLen):
+            miMatriz1[i].pop(popIndex)
+    
+    return miMatriz1
+
+"""
+delSpace: Función para eliminar los espacios repetidos.
+
+inputs:
+    -MiString: Texto recibido.
+    -dateIsTextLike: Especificar si la fecha utiliza caracterre
+otputs:
+    -original_string: La secuencia de caráteres ya formateada.
+"""
+def delSpace(MiString, dateIsTextLike):
+
+    original_string = MiString
+    string1 = list(original_string)
+    modString = False
+    k=0
+
+    for i in range(len(string1)):
+        if(string1[i].isalpha()):   #Se ha recibido una letra:
+            if(not dateIsTextLike): #Revisar que la letra no corresponde a una fecha
+                modString = True
+            else:
+                k+=1
+                if(k==3):
+                    dateIsTextLike =False
+                continue
+
+        if(modString):
+            if (string1[i].isdigit() or string1[i] == "("):
+                string1[i-1] = " "
+                break
+            
+            elif(string1[i] == " "):
+                string1[i] = "_"
+
+    original_string = "".join(string1)
+    return original_string
+
+
+"""
+filterText: Función para filtrar información especifíca de un texto.
+
+inputs:
+    -texto: Texto original.
+    -begin: Secuencia de inicio.
+    -end    Secuencia de fin.
+outputs:
+    -data: Texto filtrado.
+
 """
 def filterText(texto, begin, end):
     string      = ""
@@ -189,6 +245,18 @@ def filterText(texto, begin, end):
             string=""
     return data
 
+
+"""
+splitMyText: Función para filtrar información especifíca de un texto.
+
+inputs:
+    -texto: Texto original.
+    -begin: Secuencia de inicio.
+    -end    Secuencia de fin.
+outputs:
+    -data: Texto filtrado.
+
+"""
 def splitMyText(texto, dateIsTextLike = False, removeSpace = True, miSize=True):
     nuevoTexto = texto.split("\n") #Dividir en líneas
     #Iterar sobre cada string
@@ -207,56 +275,16 @@ def splitMyText(texto, dateIsTextLike = False, removeSpace = True, miSize=True):
 
     return nuevoTexto 
 
-"""
-cerar: Función para cerrar ventana. Si se procede con "continuar", enton-
-ces la variable gobal "miDecision" se pone en True.
-
-inputs:
-    -miRoot: Root de la ventana.
-"""
-def cerar(miRoot):
-    miRoot.destroy()
-    global miDecision
-    miDecision = True
-
-"""
-mostrarArchivos: Función para mostrar al usuario la cantidad de archivos
-encontrados y sus respectivos nombres.
-
-inputs:
-    -archivos_en_carpeta: Lista con el nombre de archivos.
-"""
-def mostrarArchivos(archivos_en_carpeta):
-    root = Tk()
-    nunArchivos = len(archivos_en_carpeta)
-    displayArch = ""
-    for archivo in archivos_en_carpeta:
-        displayArch += ("\n-"+archivo)
-    displayArch += "\n"
-    
-
-    #Labels:
-    myLabeArch  = Label(root, text="Se han encontrado un total de "+str(nunArchivos)+" archivos",font=("Arial black",12))
-    myLabeArch1 = Label(root, text=displayArch, anchor="e")
-
-    myLabeArch.pack()
-    myLabeArch1.pack()
-
-    #Botones:
-    continunar = Button(root, text="Continuar", font=("Verdana",11), command=lambda:cerar(root), padx=25, pady=5, bg="white")
-    continunar.pack()
-
-    root.mainloop()
 
 """
 createDataFrame: Función para retornar al usuario un data frame con
 los datos obtenidos.
 
 inputs:
-    -contexto: Tipo de archivo de donde se extraen los datos.
+    -tipo: Tipo de archivo de donde se extraen los datos (predeterminado ninguno).
     -data: Matriz con toda la información.
-inputs:
-
+outputs:
+    -df: Data Frame a devolver con la información.
 
 """
 def createDataFrame(archivo, tipo=None,):
@@ -325,20 +353,37 @@ def createDataFrame(archivo, tipo=None,):
 
     return df
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+"""
+processData: Clase para procesar la información relativa a los datos del banco.
+
+atributos:
+    -df: Data frame con la información mínima (fehca, monto, concepto).
+    -tipo: Clase de Banco (BCR cred, BCR ahorro, BAC cred, BAC ahorro o PROMERICA) 
+    [predeterminado ninguno].
+    -moneda: El tipo de moneda en que están los datos (Euro, Dolar, Colon, etc...)
+    [predeterminado ninguno].
+"""
 class processData:
     def __init__(self, df, tipo=None, moneda=None):
         self.df     = df
         self.tipo   = tipo
         self.moneda = moneda
 
+        #IDLE:
+        self.formatdf()
+
+    
+    #formatdf: Atributo para eliminar inormación innecesaria
+    #TODO: Cambiar el formato de las fechas.
     def formatdf(self):
         columnas_a_eliminar = []
         self.df = self.df.rename(columns={'Fecha contable': 'Fecha'})
         match self.tipo:
             case "BAC ahorros":
                 columnas_a_eliminar = ['Documento']
-                #self.df['Fecha'] = pd.to_datetime(self.df['Fecha'], format='%b/%d', errors='coerce'
             case "BAC cred":
                 columnas_a_eliminar = ["Documento"]
             case "BCR ahorros":
@@ -354,6 +399,33 @@ class processData:
         self.df['Monto'] = self.df['Monto'].str.replace(",", "")
         self.df['Monto'] = self.df['Monto'].astype(float)
 
+    def formatDate(self):
+        dates = self.df["Fecha"].tolist()
+        datesStr = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"]
+        newDates = []   
+    
+        if (self.tipo == "BAC ahorros" or self.tipo=="BAC  cred"):
+            for date in dates:
+                for i in range(12):
+                    if(datesStr[i] in date):
+                        date = date.replace(datesStr[i], str(i+1))
+                        date = date.replace("-", "/")
+
+                        newDates.append(date)
+                        break
+            self.df["Fecha"] = newDates
+
+        
+        match self.tipo:
+            case _:
+                print("Hola")
+
+        year = dt.datetime.now().year
+        self.df['Fecha'] = self.df['Fecha'].apply(lambda x: f'{year}/{x}')
+
+
+
+    #createGraph: Atributo para crear un gráfico de los montos como función del tiempo.
     def createGraph(self):
         plt.figure(figsize=(10, 6))
         plt.bar(self.df['Fecha'], self.df['Monto'], align='center', color='blue')
@@ -371,9 +443,10 @@ class processData:
         # Muestra la gráfica
         plt.show()
     
+    #boxGraph: Atributo para crear un gráfico de caja.
     def boxGraph(self):
         # Crear el diagrama de caja para la columna "Datos"
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(8, 3))
         plt.boxplot(self.df['Monto'], vert=False)  # Utiliza vert=False para un diagrama de caja horizontal
 
         # Personaliza el gráfico
@@ -383,18 +456,35 @@ class processData:
         # Muestra el gráfico
         plt.show()
  
+    def piePlot(self):
+
+        plt.figure(figsize=(8, 8))
+        conteo_categorias =self.df["Categorías"].value_counts()
+        
+        plt.pie(conteo_categorias, labels=conteo_categorias.index, autopct='%1.1f%%', startangle=140)
+        plt.title('Diagrama de Pastel de Categorías')
+        plt.axis('equal')  # Para asegurarse de que el gráfico sea circular
+        plt.show()
+    
+    #stadistics: Atributo para obtener los resultados estadísticos.
+    #outputs: 
+    #   -estadisticas: Resultados estadiísticos.
     def stadistics(self):
         estadisticas = self.df['Monto'].describe()
-        estadisticas = estadisticas.to_frame()
-
+        print(type(estadisticas))
         return estadisticas
+        
+    def guardar_csv(self, nombre_archivo="Registro"):
+        # Guardar el DataFrame en un archivo CSV
+        self.df.to_csv(nombre_archivo, mode='a', index=False)
+        
 #TestBench:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 misArchivos         = encontrarArchivos(ruta_carpeta)
 
 
 # Create the pandas DataFrame
-"""df1 = createDataFrame(misArchivos[0], "BAC ahorros" )    #DONE
+df1 = createDataFrame(misArchivos[0], "BAC ahorros" )    #DONE
 df2 = createDataFrame(misArchivos[1], "BAC cred"    )    #DONE
 df3 = createDataFrame(misArchivos[2], "BCR ahorros" )
 df4 = createDataFrame(misArchivos[3], "BCR cred"    )         
@@ -407,19 +497,13 @@ df4= processData(df4, "BCR cred")
 df5= processData(df5, "PROMERICA")
 
 
-df1.formatdf()
-df2.formatdf()
-df3.formatdf()
-df4.formatdf()
-df5.formatdf()
+df1.formatDate()
+
+
 # print dataframe.
 print(df1.df, "\n")
 print(df2.df, "\n")
 print(df3.df, "\n")
 print(df4.df, "\n")
 print(df5.df, "\n")
-
-df1.boxGraph()
-print(df1.stadistics())
-"""
 

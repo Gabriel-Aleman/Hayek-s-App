@@ -1,8 +1,13 @@
 
 from fileManagement import *
 
-bancos= ["BAC ahorro", "BAC cred", "BCR ahorros", "BCR cred", "PROMERICA"]
+bancos= ["BAC ahorros", "BAC cred", "BCR ahorros", "BCR cred", "PROMERICA"]
+categorias=["Entretenimiento", "Transporte", "Comida", "Otros"]
 
+def showCateg(arr):
+    for i in range(len(arr)):
+        print(i+1,"-",arr[i])
+              
 if __name__ == "__main__":
     while True:
         print("Archivos encontrados en la ruta predeterminada:")
@@ -12,7 +17,7 @@ if __name__ == "__main__":
             print(i+1,".",archivos[i])
 
         archivo     = int(input("\n Ingrese el archivo del que desea obtener información:"))
-        archivos    = archivos[archivos-1]
+        archivo    = archivos[archivo-1]
 
         for i in range(len(bancos)):
             print(i+1,".",bancos[i])
@@ -20,6 +25,31 @@ if __name__ == "__main__":
         banco     = int(input("\n Ingrese el tipo de banco:"))
         banco     = bancos[banco-1]
 
-        df = createDataFrame(ar, "BAC cred"    )    #DONE
+        miDataFrame = createDataFrame(archivo, banco)
+        miDataFrame = processData(miDataFrame, banco)
+        miDataFrame.formatdf()
 
-        break
+        comuna_elementos = miDataFrame.df['Concepto'].tolist()
+        
+        misCateg=[]
+        for i in comuna_elementos:
+            print("Para el concepto",i, "Escoja una categoría.")
+            showCateg(categorias)
+            cat = int(input("Categoría: "))
+            misCateg.append(categorias[cat-1])
+
+        miDataFrame.df['Categorías'] = misCateg
+        
+        print(miDataFrame.df)
+        print("\n",miDataFrame.stadistics())
+
+        miDataFrame.createGraph()
+        miDataFrame.boxGraph()
+        miDataFrame.piePlot()
+
+        respuesta = input("¿Desea cerrar? Ingrese 1 para confirmar o cualquier otra tecla para continuar: ")
+        if respuesta == '1':
+            print("Cerrando...")
+            break
+        else:
+            print("Continuando...")
