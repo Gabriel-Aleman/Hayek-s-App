@@ -141,7 +141,26 @@ class processData:
         estadisticas = self.section['Monto'].describe()
         print(type(estadisticas))
         return estadisticas
+    
+    #getYearsList: Método para obtner una lista de los años de los que
+    #se tiene regisro.
+    #Outputs: 
+    #       -años: lista con los años
+    def getYearsList(self):
+        self.df['Fecha'] = pd.to_datetime(self.df['Fecha'])
+        años = set(self.df['Fecha'].dt.year)
+        return list(años)
         
+
+    #getMontList: Método para obtner una lista de los meses de los que
+    #se tiene regisro.
+    #Outputs: 
+    #       -meses: lista con los años
+    def getMonthList(self):
+        self.df['Fecha'] = pd.to_datetime(self.df['Fecha'])
+        meses = set(self.df['Fecha'].dt.month)
+        return list(meses)
+    
     #guardar_csv: Método para guardar los datos en un CSV
     #inputs: 
     #   -nombre_archivo: Archivo donde guardar los resultados
@@ -152,7 +171,7 @@ class processData:
             # Guardar el DataFrame en un archivo CSV
             self.df.to_csv(nombre_archivo, mode='a', header=False, index=False)
 
-
+    #cargar_csv: Método para cargar los datos al data frame
     def cargar_csv(self):
         column_names = ['Fecha', 'Concepto', "Monto", "Categorias"]
         # Cargar los datos del archivo CSV en un DataFrame
@@ -178,10 +197,10 @@ class processData:
    
 #TestBench:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
-misArchivos         = encontrarArchivos(ruta_carpeta)
+#misArchivos         = encontrarArchivos(ruta_carpeta)
 
 
-import random
+"""import random
 categorias=["Entretenimiento", "Transporte", "Comida", "Otros"]
 
 
@@ -209,14 +228,17 @@ df5.addCategories(array_aleatorio)
 #print(df4.df, "\n")
 print(df5.df, "\n")
 
-
 dff=processData(archivo="Registro.csv")
 año_deseado = 2023
 mes_deseado = 8
 dff.chooseSegment(8, 2023)
 
-dff.createGraph()
-dff.boxGraph()
-dff.piePlot()
+#dff.createGraph()
+#dff.boxGraph()
+#dff.piePlot()
+
+print(dff.getYearsList())
+print(dff.getMonthList())
 
 print(dff.section)
+"""
