@@ -1,0 +1,222 @@
+from fileManagement import *
+import matplotlib.pyplot as plt
+
+"""
+processData: Clase para procesar la información relativa a los datos del banco.
+
+atributos:
+    -df: Data frame con la información mínima (fehca, monto, concepto).
+    -tipo: Clase de Banco (BCR cred, BCR ahorro, BAC cred, BAC ahorro o PROMERICA) 
+    [predeterminado ninguno].
+    -moneda: El tipo de moneda en que están los datos (Euro, Dolar, Colon, etc...)
+    [predeterminado ninguno].
+"""
+class processData:
+    def __init__(self, df=None, tipo=None, archivo=None, moneda=None):
+        self.df      = df
+        self.section = df
+        self.tipo    = tipo
+        self.archivo = archivo
+        self.moneda  = moneda
+
+        if(self.tipo!=None):
+            self.formatdf()
+            self.formatDate()
+
+        if(self.archivo!=None):
+            self.cargar_csv()
+
+        
+    #addCategories: Método para añadir categorias
+    #inputs:
+    #   -categories: Categorias a añadir
+    def addCategories(self, categories):
+        if (len(self.df) == len(categories)) and ("Categorias" not in self.df.columns): #Revisar que las categorías coinciden con el tamaño del DF
+        # Agregar una nueva columna al DataFrame
+            self.df['Categorias'] = categories
+
+    #formatdf: Método para eliminar inormación innecesaria
+    def formatdf(self):
+        columnas_a_eliminar = []
+        self.df = self.df.rename(columns={'Fecha contable': 'Fecha'})
+        match self.tipo:
+            case "BAC ahorros":
+                columnas_a_eliminar = ['Documento']
+            case "BAC cred":
+                columnas_a_eliminar = ["Documento"]
+            case "BCR ahorros":
+                columnas_a_eliminar = ["Documento", "Fecha de movimiento", "Número"]
+            case "BCR cred":
+                columnas_a_eliminar = ["Número", "Fecha de movimiento", "Tasa", "interes"]
+            case "PROMERICA":
+                pass
+            case _:
+                pass
+        
+        self.df = self.df.drop(columnas_a_eliminar, axis=1)
+    
+        self.df['Monto'] = self.df['Monto'].str.replace(",", "")
+        self.df['Monto'] = self.df['Monto'].astype(float)
+
+    #formatDate: Método para que las fechas estén ordenadas y deacuerdo a lo deseado
+    def formatDate(self):
+
+        if(self.tipo!=None):
+            dates = self.df["Fecha"].tolist()
+            datesStr = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"]
+            newDates = []   
+            if (self.tipo == "BAC ahorros" or self.tipo=="BAC cred"):
+                for date in dates:
+                    for i in range(12):
+                        if(datesStr[i] in date):
+                            date = date.replace(datesStr[i], str(i+1))
+
+                            newDates.append(date)
+                            break
+                self.df["Fecha"] = newDates
+
+            
+            if self.tipo== "BAC ahorros":
+                year = dt.datetime.now().year
+                self.df['Fecha'] = self.df['Fecha'].apply(lambda x: f'{year}/{x}')
+                self.df['Fecha'] =  pd.to_datetime(self.df['Fecha'], format='%Y/%m/%d', errors='coerce')
+
+            elif self.tipo== "BAC cred":
+                self.df['Fecha'] =  pd.to_datetime(self.df['Fecha'], format='%d-%m-%y', errors='coerce')
+            
+            elif self.tipo == "PROMERICA":
+                self.df['Fecha'] =  pd.to_datetime(self.df['Fecha'], format='%d/%m/%Y', errors='coerce')
+
+            elif ("BCR" in self.tipo):
+                self.df['Fecha'] =  pd.to_datetime(self.df['Fecha'], format='%d/%m/%y', errors='coerce')
+
+            
+        self.df = self.df.sort_values(by='Fecha', ascending=True)
+        self.df = self.df.reset_index(drop=True)
+
+    #chooseSegment: Metodo para elegir los datos a analizar, por mes y año
+    #inputs:
+    #    -mes: Mes a elegir
+    #    -año: Año a elegir
+    def chooseSegment(self, mes, año):
+        self.df['Fecha'] = pd.to_datetime(dff.df['Fecha'])
+        #self.section = self.df[(self.df['Fecha'].dt.year == año) & (self.df['Fecha'].dt.month == mes)]
+        self.section =self.df[(self.df['Fecha'].dt.year == año) & (self.df['Fecha'].dt.month == mes)]
+
+    #createGraph: Atributo para crear un gráfico de los montos como función del tiempo.
+    def createGraph(self):
+        #plt.figure(figsize=(10, 6))
+        plt.bar(self.section['Fecha'], self.section['Monto'], align='center', color='blue')
+
+
+        # Personaliza la gráfica
+        plt.xlabel('Fecha')
+        plt.ylabel('Valor')
+        plt.title('Evolución de monto con el tiempo')
+        plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+        # Rotar las etiquetas del eje x para mejorar la legibilidad si es necesario
+        plt.xticks(rotation=45)
+
+        # Muestra la gráfica
+        plt.show()
+    
+    #boxGraph: Método para crear un gráfico de caja.
+    def boxGraph(self):
+        # Crear el diagrama de caja para la columna "Datos"
+        #plt.figure(figsize=(8, 3))
+        plt.boxplot(self.section['Monto'], vert=False)  # Utiliza vert=False para un diagrama de caja horizontal
+
+        # Personaliza el gráfico
+        plt.xlabel('Valor')
+        plt.title('Diagrama de Caja para la Columna "Datos"')
+
+        # Muestra el gráfico
+        plt.show()
+    
+    #stadistics: Método para obtener los resultados estadísticos.
+    #outputs: 
+    #   -estadisticas: Resultados estadiísticos.
+    def stadistics(self):
+        estadisticas = self.section['Monto'].describe()
+        print(type(estadisticas))
+        return estadisticas
+        
+    #guardar_csv: Método para guardar los datos en un CSV
+    #inputs: 
+    #   -nombre_archivo: Archivo donde guardar los resultados
+    def guardar_csv(self, nombre_archivo="Registro.csv"):
+
+        #Revisar que ya se añadiéron las categorías:
+        if "Categorias" in self.df.columns:
+            # Guardar el DataFrame en un archivo CSV
+            self.df.to_csv(nombre_archivo, mode='a', header=False, index=False)
+
+
+    def cargar_csv(self):
+        column_names = ['Fecha', 'Concepto', "Monto", "Categorias"]
+        # Cargar los datos del archivo CSV en un DataFrame
+        self.df = pd.read_csv(self.archivo, names=column_names)
+        self.df = self.df.sort_values(by='Fecha', ascending=True)
+        self.df = self.df.reset_index(drop=True)
+        self.section = self.df
+    
+    #piePlot: Método para crear un gráfico de pastel.
+    def piePlot(self):
+
+        plt.figure(figsize=(8, 8))
+        conteo_categorias =self.section["Categorias"].value_counts()
+        
+        plt.pie(conteo_categorias, labels=conteo_categorias.index, autopct='%1.1f%%', startangle=140)
+        plt.title('Diagrama de Pastel de Categorías')
+        plt.axis('equal')  # Para asegurarse de que el gráfico sea circular
+        plt.show()
+
+        
+
+
+   
+#TestBench:
+#-----------------------------------------------------------------------------------------------------------------------------------------------------
+misArchivos         = encontrarArchivos(ruta_carpeta)
+
+
+import random
+categorias=["Entretenimiento", "Transporte", "Comida", "Otros"]
+
+
+
+# Create the pandas DataFrame
+#df1 = createDataFrame(misArchivos[0], "BAC ahorros" )    #DONE
+#df2 = createDataFrame(misArchivos[1], "BAC cred"    )    #DONE
+#df3 = createDataFrame(misArchivos[2], "BCR ahorros" )
+#df4 = createDataFrame(misArchivos[3], "BCR cred"    )         
+df5 = createDataFrame(misArchivos[4], "PROMERICA"   )     
+
+#df1= processData(df1, "BAC ahorros")
+#df2= processData(df2, "BAC cred")
+#df3= processData(df3, "BCR ahorros")
+#df4= processData(df4, "BCR cred")
+df5= processData(df5, "PROMERICA")
+array_aleatorio = random.choices(categorias, k=len(df5.df))
+df5.addCategories(array_aleatorio)
+#df5.guardar_csv()
+
+# print dataframe.
+#print(df1.df, "\n")
+#print(df2.df, "\n")
+#print(df3.df, "\n")
+#print(df4.df, "\n")
+print(df5.df, "\n")
+
+
+dff=processData(archivo="Registro.csv")
+año_deseado = 2023
+mes_deseado = 8
+dff.chooseSegment(8, 2023)
+
+dff.createGraph()
+dff.boxGraph()
+dff.piePlot()
+
+print(dff.section)

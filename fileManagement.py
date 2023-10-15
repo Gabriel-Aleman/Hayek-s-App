@@ -4,13 +4,13 @@ import PyPDF2
 import os
 import re
 import pandas as pd
-import matplotlib.pyplot as plt
 import pdfplumber
 import datetime as dt
 
 #Variables globales:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 ruta_carpeta = "/Users/gabri/OneDrive/Escritorio/PROYECTO/archivos"
+
 
 #Funciones:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -352,158 +352,3 @@ def createDataFrame(archivo, tipo=None,):
             None
 
     return df
-
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-"""
-processData: Clase para procesar la información relativa a los datos del banco.
-
-atributos:
-    -df: Data frame con la información mínima (fehca, monto, concepto).
-    -tipo: Clase de Banco (BCR cred, BCR ahorro, BAC cred, BAC ahorro o PROMERICA) 
-    [predeterminado ninguno].
-    -moneda: El tipo de moneda en que están los datos (Euro, Dolar, Colon, etc...)
-    [predeterminado ninguno].
-"""
-class processData:
-    def __init__(self, df, tipo=None, moneda=None):
-        self.df     = df
-        self.tipo   = tipo
-        self.moneda = moneda
-
-        #IDLE:
-        self.formatdf()
-
-    
-    #formatdf: Atributo para eliminar inormación innecesaria
-    #TODO: Cambiar el formato de las fechas.
-    def formatdf(self):
-        columnas_a_eliminar = []
-        self.df = self.df.rename(columns={'Fecha contable': 'Fecha'})
-        match self.tipo:
-            case "BAC ahorros":
-                columnas_a_eliminar = ['Documento']
-            case "BAC cred":
-                columnas_a_eliminar = ["Documento"]
-            case "BCR ahorros":
-                columnas_a_eliminar = ["Documento", "Fecha de movimiento", "Número"]
-            case "BCR cred":
-                columnas_a_eliminar = ["Número", "Fecha de movimiento", "Tasa", "interes"]
-            case "PROMERICA":
-                pass
-            case _:
-                pass
-        
-        self.df = self.df.drop(columnas_a_eliminar, axis=1)
-        self.df['Monto'] = self.df['Monto'].str.replace(",", "")
-        self.df['Monto'] = self.df['Monto'].astype(float)
-
-    def formatDate(self):
-        dates = self.df["Fecha"].tolist()
-        datesStr = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"]
-        newDates = []   
-    
-        if (self.tipo == "BAC ahorros" or self.tipo=="BAC  cred"):
-            for date in dates:
-                for i in range(12):
-                    if(datesStr[i] in date):
-                        date = date.replace(datesStr[i], str(i+1))
-                        date = date.replace("-", "/")
-
-                        newDates.append(date)
-                        break
-            self.df["Fecha"] = newDates
-
-        
-        match self.tipo:
-            case _:
-                print("Hola")
-
-        year = dt.datetime.now().year
-        self.df['Fecha'] = self.df['Fecha'].apply(lambda x: f'{year}/{x}')
-
-
-
-    #createGraph: Atributo para crear un gráfico de los montos como función del tiempo.
-    def createGraph(self):
-        plt.figure(figsize=(10, 6))
-        plt.bar(self.df['Fecha'], self.df['Monto'], align='center', color='blue')
-
-
-        # Personaliza la gráfica
-        plt.xlabel('Fecha')
-        plt.ylabel('Valor')
-        plt.title('Evolución de monto con el tiempo')
-        plt.grid(axis='y', linestyle='--', alpha=0.7)
-
-        # Rotar las etiquetas del eje x para mejorar la legibilidad si es necesario
-        plt.xticks(rotation=45)
-
-        # Muestra la gráfica
-        plt.show()
-    
-    #boxGraph: Atributo para crear un gráfico de caja.
-    def boxGraph(self):
-        # Crear el diagrama de caja para la columna "Datos"
-        plt.figure(figsize=(8, 3))
-        plt.boxplot(self.df['Monto'], vert=False)  # Utiliza vert=False para un diagrama de caja horizontal
-
-        # Personaliza el gráfico
-        plt.xlabel('Valor')
-        plt.title('Diagrama de Caja para la Columna "Datos"')
-
-        # Muestra el gráfico
-        plt.show()
- 
-    def piePlot(self):
-
-        plt.figure(figsize=(8, 8))
-        conteo_categorias =self.df["Categorías"].value_counts()
-        
-        plt.pie(conteo_categorias, labels=conteo_categorias.index, autopct='%1.1f%%', startangle=140)
-        plt.title('Diagrama de Pastel de Categorías')
-        plt.axis('equal')  # Para asegurarse de que el gráfico sea circular
-        plt.show()
-    
-    #stadistics: Atributo para obtener los resultados estadísticos.
-    #outputs: 
-    #   -estadisticas: Resultados estadiísticos.
-    def stadistics(self):
-        estadisticas = self.df['Monto'].describe()
-        print(type(estadisticas))
-        return estadisticas
-        
-    def guardar_csv(self, nombre_archivo="Registro"):
-        # Guardar el DataFrame en un archivo CSV
-        self.df.to_csv(nombre_archivo, mode='a', index=False)
-        
-#TestBench:
-#-----------------------------------------------------------------------------------------------------------------------------------------------------
-misArchivos         = encontrarArchivos(ruta_carpeta)
-
-
-# Create the pandas DataFrame
-df1 = createDataFrame(misArchivos[0], "BAC ahorros" )    #DONE
-df2 = createDataFrame(misArchivos[1], "BAC cred"    )    #DONE
-df3 = createDataFrame(misArchivos[2], "BCR ahorros" )
-df4 = createDataFrame(misArchivos[3], "BCR cred"    )         
-df5 = createDataFrame(misArchivos[4], "PROMERICA"   )     
-
-df1= processData(df1, "BAC ahorros")
-df2= processData(df2, "BAC cred")
-df3= processData(df3, "BCR ahorros")
-df4= processData(df4, "BCR cred")
-df5= processData(df5, "PROMERICA")
-
-
-df1.formatDate()
-
-
-# print dataframe.
-print(df1.df, "\n")
-print(df2.df, "\n")
-print(df3.df, "\n")
-print(df4.df, "\n")
-print(df5.df, "\n")
-
