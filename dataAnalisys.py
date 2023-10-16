@@ -99,7 +99,7 @@ class processData:
     #    -mes: Mes a elegir
     #    -año: Año a elegir
     def chooseSegment(self, mes, año):
-        self.df['Fecha'] = pd.to_datetime(dff.df['Fecha'])
+        self.df['Fecha'] = pd.to_datetime(self.df['Fecha'])
         #self.section = self.df[(self.df['Fecha'].dt.year == año) & (self.df['Fecha'].dt.month == mes)]
         self.section =self.df[(self.df['Fecha'].dt.year == año) & (self.df['Fecha'].dt.month == mes)]
 

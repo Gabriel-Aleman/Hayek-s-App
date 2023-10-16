@@ -5,15 +5,41 @@ from dataAnalisys import *
 
 #Variables globales:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
-filterDatagiven = False
+
+meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiempre", "Octubre", "Noviembre", "Diciembre"] 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 root= Tk()
 root.title("Hayek's app")
 root.iconbitmap("icon.ico")
 
+def submitDates():
+    if (añoEntry.cget("text")=="----") or (mesEntry.cget("text")=="----"):
+        print("ERROR")
+
+    else:
+        radio_button1.config(state=NORMAL)
+        radio_button2.config(state=NORMAL)
+        radio_button3.config(state=NORMAL)
+
+def addFechasMes():
+    global mesXXX
+    mes1 = listboxMeses.get(listboxMeses.curselection())
+
+    mesXXX = meses.index(mes1)+1
+
+    mesEntry.config(text=str(mes1))
+
+def addFechasAño():
+    global año
+    año = listboxAños.get(listboxAños.curselection())
+    añoEntry.config(text=str(año))
+
+        
+#Elegir FECHAS
 def toggle_listbox():
-    global myLabel1, myLabel0, listboxAños
+    global myLabel1, myLabel0, buttonDates1, buttonDates2, buttonDone
+
     if checkbox_var.get():
         myLabel0 = Label(root, text="Meses:")
         myLabel1 = Label(root, text="Años:")
@@ -24,41 +50,56 @@ def toggle_listbox():
         listboxMeses.grid(row=3, column=2)
         listboxAños.grid(row=3, column=3)
 
+        buttonDates1 = Button(root, text="Seleccionar mes", bg="green", fg="White",  command=addFechasMes)
+        buttonDates1.grid(row=4, column=2, padx=30)
+        
+        buttonDates2 = Button(root, text="Seleccionar año", bg="green", fg="White", command=addFechasAño)
+        buttonDates2.grid(row=4, column=3, padx=30)
+
+
+        """        
+        seleccion = listboxMeses.curselection()
+        if seleccion:  # Verificar si hay una selección activa
+            indice = seleccion[0]  # Obtener el primer elemento seleccionado
+            valor = listboxMeses.get(indice)  # Obtener el valor seleccionado
+            mesEntry.config(text="Valor seleccionado: " + valor)
+        else:
+            mesEntry.config(text="Ningún valor seleccionado")
+        
+        print("SELECCIÓN:",indice)
+        """
     else:
+
         listboxMeses.grid_forget()
         listboxAños.grid_forget()
         myLabel0.grid_forget()
         myLabel1.grid_forget()
+        buttonDates1.grid_forget()
+        buttonDates2.grid_forget()
+
 
     #TODO:
     #  selection_entry = tk.Entry(root, textvariable=selection_text, state="readonly")
     #  selection_entry.grid(row=3)
 
-
+#Filtrar FECHAS
 def checkButt():
-    global checkbox_var, checkbox, listboxMeses, listboxAños, labelAño, labelMes, mesEntry, AñoEntry
-
-    meses = dff.getMonthList()  # Lista de meses
-    años = dff.getYearsList()   # Lista de años
-
-
+    global checkbox_var, checkbox, listboxMeses, listboxAños, labelAño, labelMes, mesEntry, añoEntry, buttonDone
     
-
-    #listboxMeses.grid(row=1, column=1)
-
-
+    años = dataFrame.getYearsList()   # Lista de años
 
     #Inh
-    if opcion1.get() == 1 and not(filterDatagiven):
-        listboxMeses = Listbox(root, selectmode=SINGLE, selectbackground="blue")
-        listboxAños = Listbox(root, selectmode=SINGLE, selectbackground="blue")
+    if opcion1.get() == 1 :
 
-            # Agregar los meses al Listbox
-        for mes in meses:
-            listboxMeses.insert(END, mes)
+        listboxMeses = Listbox(root, selectbackground="blue")
+        listboxAños = Listbox(root,  selectbackground="blue")
+
+        # Agregar los meses al Listbox
+        for miMes in meses: 
+            listboxMeses.insert(END, miMes)
         
-        for año in años:
-            listboxAños.insert(END, año)
+        for miAño in años:
+            listboxAños.insert(END, miAño)
 
         radio_button1.config(state=DISABLED)
         radio_button2.config(state=DISABLED)
@@ -71,16 +112,22 @@ def checkButt():
         labelMes = Label(root, text="Mes seleccionado:")
         labelAño = Label(root, text="Año seleccionado:")
 
-        labelMes.grid(row=4, column=0)
-        labelAño.grid(row=4, column=1)
+        labelMes.grid(row=5, column=0)
+        labelAño.grid(row=5, column=1)
 
-        mesEntry = Entry(root, textvariable="Buenas", state="readonly")
-        mesEntry.grid(row=5, column=0)
+        mesEntry = Label(root, text="----", bg="white", padx=30)
+        mesEntry.grid(row=6, column=0)
 
-        AñoEntry = Entry(root, textvariable="tardes", state="readonly")
-        AñoEntry.grid(row=5, column=1)
+        añoEntry = Label(root, text="----", bg="white", padx=30)
+        añoEntry.grid(row=6, column=1)
+
+        buttonDone = Button(root, text="Listo", relief=RAISED, font=("Helvetica", 12, "bold"), command=submitDates )
+        buttonDone.grid(row=6, column=2)
 
     else:
+        dataFrame.section = dataFrame.df
+
+
         radio_button1.config(state=NORMAL)
         radio_button2.config(state=NORMAL)
         radio_button3.config(state=NORMAL)
@@ -88,47 +135,56 @@ def checkButt():
         labelMes.grid_forget()
         labelAño.grid_forget()
         mesEntry.grid_forget()
-        AñoEntry.grid_forget()
+        añoEntry.grid_forget()
 
         myLabel0.grid_forget()
         myLabel1.grid_forget()
         listboxMeses.grid_forget()
         listboxAños.grid_forget()
+        buttonDates1.grid_forget()
+        buttonDates2.grid_forget()
+        buttonDone.grid_forget()
+
+
+
 
 
 def showDataAnalisys():
     
-    global opcion1, opcion2, radio_button1, radio_button2, radio_button3, botonFiltrado, dff
+    global opcion1, opcion2, radio_button1, radio_button2, radio_button3, botonFiltrado
+    
+    
     opcion1 = IntVar()
     opcion2 = IntVar()
 
-    dff=processData(archivo="Registro.csv")
     
     botonFiltrado = Checkbutton(root, text="Filtrar datos",   variable=opcion1, command=checkButt)
     botonFiltrado.grid(row=1, column=0, sticky='w')
 
     radio_button1 = Radiobutton(root, text="Gráficos", variable=opcion2, value=1, command=None)
-    radio_button1.grid(row=6, column=0, sticky='w')
+    radio_button1.grid(row=7, column=0, sticky='w')
 
     radio_button2 = Radiobutton(root, text="Mostrar data-frame", variable=opcion2, value=2, command=None)
-    radio_button2.grid(row=7, column=0, sticky='w')
+    radio_button2.grid(row=8, column=0, sticky='w')
 
     radio_button3 = Radiobutton(root, text="Observar éstadisticas", variable=opcion2, value=3, command=None)
-    radio_button3.grid(row=8, column=0, sticky='w')
+    radio_button3.grid(row=9, column=0, sticky='w')
 
 
 
 
     #Boton de continuar:
     boton_conti = Button(root, text="Continuar", command=root.destroy,fg="green", bg="white")
-    boton_conti.grid(row=9, column=1, sticky="w")
+    boton_conti.grid(row=10, column=1, sticky="w")
 
 # Funciones para las opciones del menú
 def opcion1():
     resultado.config(text="Analizando nuevo archivo")
 
 def opcion2():
+    global dataFrame 
     resultado.config(text="Abriendo registro")
+    dataFrame=processData(archivo="Registro.csv")
     showDataAnalisys()
 
 # Función para salir de la aplicación
@@ -136,7 +192,8 @@ def salir():
     root.quit()
 
 
-#-----------------------------------------------------------------------------------------------------------------------------------------------------
+#%%
+##-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Crear un menú
 menu_principal = Menu(root)
@@ -158,7 +215,7 @@ resultado.grid(row=0, column=0)
 
 # Botón de salida:
 boton_salir = Button(root, text="Salir", command=root.destroy,fg="red", bg="white")
-boton_salir.grid(row=9, column=0, sticky="w")
+boton_salir.grid(row=10, column=0, sticky="w")
 
 
 root.mainloop()
