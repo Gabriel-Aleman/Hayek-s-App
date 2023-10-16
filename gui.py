@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 from tkinter import *
 from dataAnalisys import *
-
+from tkinter import ttk
 #Variables globales:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ def submitDates():
 
 def addFechasMes():
     global mesXXX
-    mes1 = listboxMeses.get(listboxMeses.curselection())
+    mes1 = listboxMeses.get()
 
     mesXXX = meses.index(mes1)+1
 
@@ -32,7 +32,7 @@ def addFechasMes():
 
 def addFechasAño():
     global año
-    año = listboxAños.get(listboxAños.curselection())
+    año = listboxAños.get()
     añoEntry.config(text=str(año))
 
         
@@ -91,15 +91,9 @@ def checkButt():
     #Inh
     if opcion1.get() == 1 :
 
-        listboxMeses = Listbox(root, selectbackground="blue")
-        listboxAños = Listbox(root,  selectbackground="blue")
+        listboxMeses = ttk.Combobox(root, values=meses)
+        listboxAños =  ttk.Combobox(root,  values=años)
 
-        # Agregar los meses al Listbox
-        for miMes in meses: 
-            listboxMeses.insert(END, miMes)
-        
-        for miAño in años:
-            listboxAños.insert(END, miAño)
 
         radio_button1.config(state=DISABLED)
         radio_button2.config(state=DISABLED)
