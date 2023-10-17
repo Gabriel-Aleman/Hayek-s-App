@@ -106,7 +106,8 @@ class processData:
     #createGraph: Atributo para crear un gráfico de los montos como función del tiempo.
     def createGraph(self):
         #plt.figure(figsize=(10, 6))
-        plt.bar(self.section['Fecha'], self.section['Monto'], align='center', color='blue')
+        df_agregado = self.section.groupby('Fecha')['Monto'].sum().reset_index()
+        plt.bar(df_agregado['Fecha'], df_agregado['Monto'], align='center', color='blue')
 
 
         # Personaliza la gráfica
@@ -201,7 +202,7 @@ class processData:
 
 
 """import random
-categorias=["Entretenimiento", "Transporte", "Comida", "Otros"]
+categorias=["Entretenimiento", "Transporte", "Comida", "Otros"]"""
 
 
 
@@ -210,15 +211,15 @@ categorias=["Entretenimiento", "Transporte", "Comida", "Otros"]
 #df2 = createDataFrame(misArchivos[1], "BAC cred"    )    #DONE
 #df3 = createDataFrame(misArchivos[2], "BCR ahorros" )
 #df4 = createDataFrame(misArchivos[3], "BCR cred"    )         
-df5 = createDataFrame(misArchivos[4], "PROMERICA"   )     
+#df5 = createDataFrame(misArchivos[4], "PROMERICA"   )     
 
 #df1= processData(df1, "BAC ahorros")
 #df2= processData(df2, "BAC cred")
 #df3= processData(df3, "BCR ahorros")
 #df4= processData(df4, "BCR cred")
-df5= processData(df5, "PROMERICA")
-array_aleatorio = random.choices(categorias, k=len(df5.df))
-df5.addCategories(array_aleatorio)
+#df5= processData(df5, "PROMERICA")
+#array_aleatorio = random.choices(categorias, k=len(df5.df))
+#df5.addCategories(array_aleatorio)
 #df5.guardar_csv()
 
 # print dataframe.
@@ -226,14 +227,14 @@ df5.addCategories(array_aleatorio)
 #print(df2.df, "\n")
 #print(df3.df, "\n")
 #print(df4.df, "\n")
-print(df5.df, "\n")
+#print(df5.df, "\n")
 
-dff=processData(archivo="Registro.csv")
+"""dff=processData(archivo="Registro.csv")
 año_deseado = 2023
 mes_deseado = 8
 dff.chooseSegment(8, 2023)
 
-#dff.createGraph()
+dff.createGraph()
 #dff.boxGraph()
 #dff.piePlot()
 
