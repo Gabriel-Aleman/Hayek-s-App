@@ -36,19 +36,9 @@ def obtener_seleccion():
         #Elegir la opción
         match seleccion:
             case 1: #Gráficos
-
-                match tipoGrafico.get():
-                    case 1:
-                        dataFrame.createGraph()
-                    case 2:
-                        dataFrame.piePlot()
-                    case 3:
-                        dataFrame.boxGraph()
-                    case 4:
-                        dataFrame.createGraph()
-                        dataFrame.piePlot()
-                        dataFrame.boxGraph()
-
+                dataFrame.createGraph()
+                dataFrame.boxGraph()
+                dataFrame.piePlot()
 
             case 2: #Estadísticas
                 new_window = Toplevel()
@@ -72,6 +62,9 @@ def obtener_seleccion():
                 tabla.show()
 
 
+            case _:
+                pass
+
 #Actualizar fechas a filtrar
 def submitDates():
     addFechasMes()
@@ -84,10 +77,12 @@ def submitDates():
         radio_buttonDF.config(state=NORMAL)
         boton_conti.config(state=NORMAL)
 
+        """        
         botonPlot.config(state=NORMAL)
         botonPie.config(state=NORMAL)
         botonBox.config(state=NORMAL)
         botonAll.config(state=NORMAL)
+        """
 
     else:
         radio_buttonGraficos.config(state=DISABLED)
@@ -95,10 +90,12 @@ def submitDates():
         radio_buttonDF.config(state=DISABLED)
         boton_conti.config(state=DISABLED)
 
+        """
         botonPlot.config(state=DISABLED)
         botonPie.config(state=DISABLED)
         botonBox.config(state=DISABLED)
         botonAll.config(state=DISABLED)
+        """
 
 
 #Actualizar mes
@@ -198,11 +195,13 @@ def checkButt():
         radio_buttonDF.config(state=DISABLED)
         boton_conti.config(state=DISABLED)
 
+        """
         if(elegirFuncion.get()==1):
             botonPlot.config(state=DISABLED)
             botonPie.config(state=DISABLED)
             botonBox.config(state=DISABLED)
             botonAll.config(state=DISABLED)
+        """
 
 
         checkbox_var = IntVar()
@@ -231,12 +230,14 @@ def checkButt():
         radio_buttonEstadistics.config(state=NORMAL)
         radio_buttonDF.config(state=NORMAL)
         boton_conti.config(state=NORMAL)
+        """
 
         if(elegirFuncion.get()==1):
             botonPlot.config(state=NORMAL)
             botonPie.config(state=NORMAL)
             botonBox.config(state=NORMAL)
             botonAll.config(state=NORMAL)
+        """
 
         checkbox.grid_forget()
         labelMes.grid_forget()
@@ -258,20 +259,22 @@ def checkButt():
 def showDataAnalisys():
     global habilitarFiltrado, elegirFuncion, habilitarGraf, radio_buttonGraficos, radio_buttonEstadistics, radio_buttonDF, botonFiltrado, boton_conti, botonGraf
     habilitarFiltrado = IntVar()
-    
     elegirFuncion = IntVar()
     habilitarGraf = IntVar()
 
+    botonGraf = Checkbutton(root, text="Escoger gráfico",   variable=habilitarGraf)
+
+    
     botonFiltrado = Checkbutton(root, text="Filtrar datos",   variable=habilitarFiltrado, command=checkButt)
     botonFiltrado.grid(row=1, column=0, sticky='w')
 
     radio_buttonGraficos = Radiobutton(root, text="Gráficos", variable=elegirFuncion, value=1, command=chekOps)
     radio_buttonGraficos.grid(row=7, column=0, sticky='w')
 
-    radio_buttonEstadistics = Radiobutton(root, text="Observar estádisticas", variable=elegirFuncion, value=2, command=forget)
+    radio_buttonEstadistics = Radiobutton(root, text="Observar estádisticas", variable=elegirFuncion, value=2, command=botonGraf.grid_forget)
     radio_buttonEstadistics.grid(row=10, column=0, sticky='w')
 
-    radio_buttonDF = Radiobutton(root, text="Ver data-frame", variable=elegirFuncion, value=3, command=forget)
+    radio_buttonDF = Radiobutton(root, text="Ver data-frame", variable=elegirFuncion, value=3, command=botonGraf.grid_forget)
     radio_buttonDF.grid(row=11, column=0, sticky='w')
 
     #Boton de continuar:
@@ -283,20 +286,29 @@ def showDataAnalisys():
 def chekOps():
     global botonPlot, botonAll, botonBox, botonPie, tipoGrafico
 
-    tipoGrafico = IntVar()
+    tipoGrafico = StringVar()
 
-    botonPlot   = Radiobutton(root, text="Monto en función del tiempo", variable=tipoGrafico, value=1, fg="green")
-    botonPlot.grid(row=8, column=1, sticky="W")
+    botonGraf.grid(row=7, column=2, sticky="W")
+    botonPlot   = Radiobutton(root, text="Monto en función del tiempo", variable=tipoGrafico, value="plt", command=None)
+    botonPie    = Radiobutton(root, text="Gasto por categoría",         variable=tipoGrafico, value="cat", command=None)
+    botonBox    = Radiobutton(root, text="Diagrama de caja",            variable=tipoGrafico, value="box", command=None)
+    botonAll    = Radiobutton(root, text="todos",                       variable=tipoGrafico, value="all", command=None)
 
-    botonPie    = Radiobutton(root, text="Gasto por categoría",         variable=tipoGrafico, value=2, fg="green")
-    botonPie.grid(row=8, column=2, sticky="W")
+    if habilitarGraf.get()==1:
+        print("HOLA")
 
-    botonBox    = Radiobutton(root, text="Diagrama de caja",            variable=tipoGrafico, value=3, fg="green")
-    botonBox.grid(row=9, column=1, sticky="W")
+        botonPlot.grid(row=8, column=0, sticky="W")
+        botonPie.grid(row=8, column=1, sticky="W")
 
-    botonAll    = Radiobutton(root, text="todos",                       variable=tipoGrafico, value=4, fg="green")
-    botonAll.grid(row=9, column=2, sticky="W")
+        botonBox.grid(row=9, column=0, sticky="W")
+        botonAll.grid(row=9, column=1, sticky="W")
+    else:
+        print("Adios")
 
+        botonPlot.grid_forget()
+        botonPie.grid_forget()
+        botonBox.grid_forget()
+        botonAll.grid_forget()
 
 
 def forget():
@@ -304,7 +316,7 @@ def forget():
     botonPie.grid_forget()
     botonBox.grid_forget()
     botonAll.grid_forget()
-
+    
 def guardar_datos():
     miMes = str(meses.index(listboxMeses.get())+1)
     miDia = listboxDia.get()

@@ -19,12 +19,17 @@ class processData:
         self.archivo = archivo
         self.moneda  = moneda
 
+        #IDLE:
         if(self.tipo!=None):
             self.formatdf()
             self.formatDate()
+            self.section=self.df
 
-        if(self.archivo!=None):
+        elif(self.archivo!=None):
             self.cargar_csv()
+            self.section = self.df
+        else:
+            print("CONFIGURACIÓN INVALIDA")
 
         
     #addCategories: Método para añadir categorias
@@ -57,6 +62,7 @@ class processData:
     
         self.df['Monto'] = self.df['Monto'].str.replace(",", "")
         self.df['Monto'] = self.df['Monto'].astype(float)
+        
 
     #formatDate: Método para que las fechas estén ordenadas y deacuerdo a lo deseado
     def formatDate(self):
@@ -105,19 +111,18 @@ class processData:
 
     #createGraph: Atributo para crear un gráfico de los montos como función del tiempo.
     def createGraph(self):
-        #plt.figure(figsize=(10, 6))
-        df_agregado = self.section.groupby('Fecha')['Monto'].sum().reset_index()
-        plt.bar(df_agregado['Fecha'], df_agregado['Monto'], align='center', color='blue')
-
+        df_agregado = self.section.groupby('Fecha')['Monto'].sum().reset_index()             #Sumar los gastos de cada fecha
+        plt.plot(df_agregado['Fecha'], df_agregado['Monto'], marker='o', linestyle='-', color='b')
+        plt.fill_between(df_agregado['Fecha'], df_agregado['Monto'], hatch='//', edgecolor='lightblue', facecolor='cyan')
 
         # Personaliza la gráfica
         plt.xlabel('Fecha')
         plt.ylabel('Valor')
-        plt.title('Evolución de monto con el tiempo')
+        plt.title('Evolución de gasto con el tiempo', fontweight='bold')
         plt.grid(axis='y', linestyle='--', alpha=0.7)
 
         # Rotar las etiquetas del eje x para mejorar la legibilidad si es necesario
-        plt.xticks(rotation=45)
+        plt.xticks(rotation=20)
 
         # Muestra la gráfica
         plt.show()
@@ -125,12 +130,11 @@ class processData:
     #boxGraph: Método para crear un gráfico de caja.
     def boxGraph(self):
         # Crear el diagrama de caja para la columna "Datos"
-        #plt.figure(figsize=(8, 3))
         plt.boxplot(self.section['Monto'], vert=False)  # Utiliza vert=False para un diagrama de caja horizontal
 
         # Personaliza el gráfico
         plt.xlabel('Valor')
-        plt.title('Diagrama de Caja para la Columna "Datos"')
+        plt.title('Diagrama de Caja para los gastos', fontweight='bold')
 
         # Muestra el gráfico
         plt.show()
@@ -179,7 +183,6 @@ class processData:
         self.df = pd.read_csv(self.archivo, names=column_names)
         self.df = self.df.sort_values(by='Fecha', ascending=True)
         self.df = self.df.reset_index(drop=True)
-        self.section = self.df
     
     #piePlot: Método para crear un gráfico de pastel.
     def piePlot(self):
@@ -188,7 +191,7 @@ class processData:
         conteo_categorias =self.section["Categorias"].value_counts()
         
         plt.pie(conteo_categorias, labels=conteo_categorias.index, autopct='%1.1f%%', startangle=140)
-        plt.title('Diagrama de Pastel de Categorías')
+        plt.title('Gasto según categorías', fontweight='bold')
         plt.axis('equal')  # Para asegurarse de que el gráfico sea circular
         plt.show()
 
@@ -198,23 +201,22 @@ class processData:
    
 #TestBench:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
-#misArchivos         = encontrarArchivos(ruta_carpeta)
+"""misArchivos         = encontrarArchivos(ruta_carpeta)
 
 
-"""import random
-categorias=["Entretenimiento", "Transporte", "Comida", "Otros"]"""
-
+import random
+categorias=["Entretenimiento", "Transporte", "Comida", "Otros"]
 
 
 # Create the pandas DataFrame
 #df1 = createDataFrame(misArchivos[0], "BAC ahorros" )    #DONE
-#df2 = createDataFrame(misArchivos[1], "BAC cred"    )    #DONE
+df2 = createDataFrame(misArchivos[1], "BAC cred"    )    #DONE
 #df3 = createDataFrame(misArchivos[2], "BCR ahorros" )
 #df4 = createDataFrame(misArchivos[3], "BCR cred"    )         
 #df5 = createDataFrame(misArchivos[4], "PROMERICA"   )     
 
 #df1= processData(df1, "BAC ahorros")
-#df2= processData(df2, "BAC cred")
+df2= processData(df2, "BAC cred")
 #df3= processData(df3, "BCR ahorros")
 #df4= processData(df4, "BCR cred")
 #df5= processData(df5, "PROMERICA")
@@ -229,17 +231,22 @@ categorias=["Entretenimiento", "Transporte", "Comida", "Otros"]"""
 #print(df4.df, "\n")
 #print(df5.df, "\n")
 
-"""dff=processData(archivo="Registro.csv")
-año_deseado = 2023
-mes_deseado = 8
-dff.chooseSegment(8, 2023)
 
-dff.createGraph()
-#dff.boxGraph()
-#dff.piePlot()
+#dff=processData(archivo="Registro.csv")
+#año_deseado = 2023
+#mes_deseado = 8
+#dff.chooseSegment(8, 2023)
 
-print(dff.getYearsList())
-print(dff.getMonthList())
+cat = [ random.choice(categorias) for _ in range(len(df2.section))]
+print(cat)
+df2.addCategories(cat)
+df2.createGraph()
+df2.boxGraph()
+df2.piePlot()
 
-print(dff.section)
-"""
+#print(df2.df)
+#
+#print(dff.getYearsList())
+#print(dff.getMonthList())
+#
+#print(dff.section)"""

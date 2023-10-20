@@ -1,5 +1,6 @@
 
 from fileManagement import *
+from dataAnalisys import *
 
 bancos= ["BAC ahorros", "BAC cred", "BCR ahorros", "BCR cred", "PROMERICA"]
 categorias=["Entretenimiento", "Transporte", "Comida", "Otros"]
@@ -27,7 +28,6 @@ if __name__ == "__main__":
 
         miDataFrame = createDataFrame(archivo, banco)
         miDataFrame = processData(miDataFrame, banco)
-        miDataFrame.formatdf()
 
         comuna_elementos = miDataFrame.df['Concepto'].tolist()
         
@@ -38,7 +38,7 @@ if __name__ == "__main__":
             cat = int(input("Categoría: "))
             misCateg.append(categorias[cat-1])
 
-        miDataFrame.df['Categorías'] = misCateg
+        miDataFrame.addCategories(misCateg)
         
         print(miDataFrame.df)
         print("\n",miDataFrame.stadistics())
