@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
         miDataFrame.createGraph()
         miDataFrame.boxGraph()
-        miDataFrame.piePlot()
+        miDataFrame.categPlot()
 
         respuesta = input("¿Desea cerrar? Ingrese 1 para confirmar o cualquier otra tecla para continuar: ")
         if respuesta == '1':

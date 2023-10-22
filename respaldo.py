@@ -38,7 +38,7 @@ def obtener_seleccion():
             case 1: #Gráficos
                 dataFrame.createGraph()
                 dataFrame.boxGraph()
-                dataFrame.piePlot()
+                dataFrame.categPlot()
 
             case 2: #Estadísticas
                 new_window = Toplevel()

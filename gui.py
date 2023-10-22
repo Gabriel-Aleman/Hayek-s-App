@@ -32,6 +32,10 @@ def obtener_seleccion():
 
     if seleccion == 0:     #Revisar que el usuario halla elegido una opción
         messagebox.showerror("Error", "Debe seleccionar una opción.")
+
+    elif dataFrame.section.empty:
+        messagebox.showerror("Error", "Los rangos seleccionados no tienen información.")
+    
     else:
         #Elegir la opción
         match seleccion:
@@ -41,12 +45,12 @@ def obtener_seleccion():
                     case 1:
                         dataFrame.createGraph()
                     case 2:
-                        dataFrame.piePlot()
+                        dataFrame.categPlot()
                     case 3:
                         dataFrame.boxGraph()
                     case 4:
                         dataFrame.createGraph()
-                        dataFrame.piePlot()
+                        dataFrame.categPlot()
                         dataFrame.boxGraph()
 
 
@@ -102,8 +106,8 @@ def submitDates():
 
 
 #Actualizar mes
-def addFechasMes():
-    global mes, mesDone #TODO; mesDone
+def addFechasMes(showData=True):    #TODO: SHOW DATA:
+    global mes, mesDone 
     mes = listboxMeses.get()
 
     try:    #Verificar si es un número:
@@ -123,7 +127,7 @@ def addFechasMes():
             mesDone =False
     
     if(mesDone):
-        if widget_exists(mesEntry):
+        if showData:
             mesEntry.config(text=meses[mes-1])
     else:
         messagebox.showerror("Error", "Por favor asegurese de elegir un mes valido")
@@ -300,16 +304,19 @@ def chekOps():
 
 
 def forget():
+    print("HOLA")
     botonPlot.grid_forget()
     botonPie.grid_forget()
     botonBox.grid_forget()
     botonAll.grid_forget()
 
-def guardar_datos():
-    miMes = str(meses.index(listboxMeses.get())+1)
+#TODO: Manejar categorias
+def guardar_datos(condition):
+    addFechasMes(condition)
+    miMes = str(mes)
     miDia = listboxDia.get()
 
-    if int(miMes)<10:
+    if int(mes)<10:
         miMes="0"+miMes
 
     if int(miDia)<10:
@@ -323,9 +330,15 @@ def guardar_datos():
     
     miSTR= fecha+","+concepto+","+monto+","+categoria+"\n"
     
-    #Guardar en archivo
-    with open("Registro.csv", 'a') as archivo:
-        archivo.write(miSTR)
+    try:
+        #Guardar en archivo
+        with open("Registro.csv", 'a') as archivo:
+            archivo.write(miSTR)
+    except:
+        messagebox.showerror("Error", "No se pudo guardar en el archivo.")
+    else:
+        messagebox.showinfo("Realizado", "Sus datos fueron correctamente guardados.")
+
 
 # Funciones para las opciones del menú
 def habilitarFiltrado():
@@ -368,7 +381,7 @@ def añadirDato():
 
 
     # Botón para guardar los datos
-    boton_guardar = Button(root, text="Guardar", command=guardar_datos)
+    boton_guardar = Button(root, text="Guardar", command=lambda:guardar_datos(False))
 
     # Etiqueta para mostrar los datos ingresados
     guardado = Label(root, text="")

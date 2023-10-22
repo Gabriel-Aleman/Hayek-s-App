@@ -184,8 +184,8 @@ class processData:
         self.df = self.df.sort_values(by='Fecha', ascending=True)
         self.df = self.df.reset_index(drop=True)
     
-    #piePlot: Método para crear un gráfico de pastel.
-    def piePlot(self):
+    #categPlot: Método para crear un gráfico de pastel.
+    def categPlot(self):
 
         plt.figure(figsize=(8, 8))
         conteo_categorias =self.section["Categorias"].value_counts()
@@ -242,7 +242,7 @@ print(cat)
 df2.addCategories(cat)
 df2.createGraph()
 df2.boxGraph()
-df2.piePlot()
+df2.categPlot()
 
 #print(df2.df)
 #
