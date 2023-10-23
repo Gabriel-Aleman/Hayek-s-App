@@ -52,10 +52,10 @@ def obtener_seleccion():
                 new_window = Toplevel()
                 new_window.title("Estadísticas:")
                 estadisticas=dataFrame.stadistics()
-                results1 = Label(new_window, text="RESULTADOS OBTENIDOS", font=("Arial", 12, "bold"))
-                resultado_label = Label(new_window, text=estadisticas, borderwidth=10, bg="White")
-                results1.pack()
-                resultado_label.pack()
+                results1 = Label(new_window, text="RESULTADOS OBTENIDOS", font=("Arial", 12, "bold"), fg="green")
+                resultado_label = Label(new_window, text=estadisticas, borderwidth=5, bg="White", justify='left', wraplength=200, font=("Helvetica", 13))
+                results1.grid(row=0, column=0, sticky="w")
+                resultado_label.grid(row=1,column=0)
 
             case 3: #Ver data-Frame
                 df=dataFrame.section
@@ -92,7 +92,7 @@ def submitDates():
         botonesGrafico(DISABLED)
 
 #Actualizar mes
-def addFechasMes(showData=True):    #TODO: SHOW DATA:
+def addFechasMes(showData=True):
     global mes, mesDone 
     mes = listboxMeses.get()
 
@@ -347,24 +347,24 @@ def guardar_datos(condition):
 
 #Abrir nuevo archivo manualmente:  #TODO:
 def habilitarFiltrado():
-    rst()
-    coin.grid_forget()
+    clearBeginScreen()
+
     resultado.config(text="Analizando nuevo archivo")
 
 #Abrir registro:
 def elegirFuncion():
+    clearBeginScreen()
+
     global dataFrame
-    rst()
-    coin.grid_forget()
+
     resultado.config(text="Abriendo registro")
     dataFrame=processData(archivo="Registro.csv")
     showDataAnalisys()
 
 #Añadir dato manualmente al registro:
 def añadirDato():
+    clearBeginScreen()
     global  entry_monto, entry_concepto, guardado, listboxMeses, listboxDia, listboxAños, listboxCategoria
-    rst()
-    coin.grid_forget()
 
     # Extraer el año de la fecha actual
     año_actual = dt.datetime.now().year
@@ -424,6 +424,15 @@ def añadirDato():
 #%% WIDGET MANAGEMENT:
 ##-----------------------------------------------------------------------------------------------------------------------------------------------------
 
+def update_datetime():
+    current_datetime = dt.datetime.now()
+    current_date = current_datetime.strftime('•Fecha: %Y-%m-%d')
+    current_time = current_datetime.strftime('•Hora: %H:%M:%S %p')
+
+    date_label.config(text=current_date)
+    time_label.config(text=current_time)
+
+    root.after(1000, update_datetime)
 #Habilitar o inhabilitar los botones para la opción de gráficos
 def botonesGrafico(miEstado):
     botonPlot.config(state=miEstado)
@@ -451,11 +460,18 @@ def filtradoDeDatosForget():
 
 # Función para salir de la aplicación
 def rst():
+    clearBeginScreen()
+    coin.grid(row=0,column=0, padx=10, pady=10)
+    date_label.grid(row=1, column=0, sticky="w")
+    time_label.grid(row=2, column=0, sticky="w")
+
+
+#Borrar todos los widgets de la patalla
+def clearBeginScreen():
     for widget in root.winfo_children():
         if widget !=menu_opciones and widget !=boton_rst:
             widget.grid_forget()
 
-    coin.grid(row=0,column=0, padx=100, pady=100)
 
 #Verificar la exsitencia de determinado widget
 def widget_exists(widget):
@@ -520,12 +536,33 @@ boton_rst = Button(root, text="Reiniciar", command=rst,fg="green", bg="white")
 boton_rst.grid(row=12, column=0, sticky="w")
 
 image = Image.open("coin.gif")
+#logo = Image.open('logo.png')
+
 foto = ImageTk.PhotoImage(image)
 # Crear un widget de etiqueta para mostrar la imagen
 coin = Label(root, image=foto)
-coin.grid(row=0,column=0, padx=100, pady=100)
+coin.grid(row=0,column=0, padx=10, pady=10)
 # Inicia el ciclo de actualización del GIF
 actualizar_gif(0)
+
+#TODO:
+#myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
+#ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
+# Etiqueta para mostrar la hora
+
+
+# Etiqueta para la fecha
+date_label = Label(root, font=('Bahnschrift', 16), foreground='black')
+date_label.grid(row=1, column=0, sticky="w")
+
+# Etiqueta para la hora
+time_label = Label(root, font=('Bahnschrift', 16),  foreground='black')
+time_label.grid(row=2, column=0, sticky="w")
+
+
+# Iniciar la actualización de la fecha y hora
+update_datetime()
 
 root.mainloop()
 

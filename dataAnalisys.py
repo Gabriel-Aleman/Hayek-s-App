@@ -1,5 +1,6 @@
 from fileManagement import *
 import matplotlib.pyplot as plt
+import datetime as dt
 
 """
 processData: Clase para procesar la información relativa a los datos del banco.
@@ -143,9 +144,24 @@ class processData:
     #outputs: 
     #   -estadisticas: Resultados estadiísticos.
     def stadistics(self):
-        estadisticas = self.section['Monto'].describe()
-        print(type(estadisticas))
-        return estadisticas
+        promedio = self.section['Monto'].mean()
+        mediana = self.section['Monto'].median()
+        desviacion = self.section['Monto'].std()
+        min = self.section['Monto'].min()
+        max = self.section['Monto'].max()
+        sum = self.section['Monto'].sum()
+        count = self.section['Monto'].count()
+        
+        # Crear una cadena con los resultados en líneas separadas
+        results_string = f"-Cantidad de transacciones: {count}\n" \
+                         f"-Total gastado: {sum}\n" \
+                         f"-Mínimo gastado: {min}\n" \
+                         f"-Máximo gastado: {max}\n" \
+                         f"-Desviación Estándar: {desviacion}\n" \
+                         f"-Mediana: {mediana}\n" \
+                         f"-Promedio gastado:\n{promedio}"
+
+        return results_string
     
     #getYearsList: Método para obtner una lista de los años de los que
     #se tiene regisro.
