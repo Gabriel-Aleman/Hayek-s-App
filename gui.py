@@ -6,27 +6,14 @@ from dataAnalisys import *
 from tkinter import ttk, messagebox
 from pandastable import Table, TableModel
 from PIL import Image, ImageTk
+
 #Variables globales:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
-def actualizar_gif(frame):
-    try:
-        # Carga el siguiente frame del GIF
-        image.seek(frame)
-        foto = ImageTk.PhotoImage(image)
-
-        # Actualiza la etiqueta con el nuevo frame
-        coin.configure(image=foto)
-        coin.image = foto
-
-        # Establece un temporizador para el siguiente frame
-        root.after(100, actualizar_gif, frame + 1)
-    except EOFError:
-        # Cuando llegamos al final del GIF, reiniciamos desde el principio
-        actualizar_gif(0)
-
 meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiempre", "Octubre", "Noviembre", "Diciembre"]
 categoria = ["Transporte", "Comida", "Entretenimiento", "Impuestos", "Servicios públicos", "Otros"]
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+#En base a la opción elegida por el usuario mostrar los resultados
 def obtener_seleccion():
     seleccion = elegirFuncion.get()
 
@@ -40,19 +27,24 @@ def obtener_seleccion():
         #Elegir la opción
         match seleccion:
             case 1: #Gráficos
-
-                match tipoGrafico.get():
-                    case 1:
-                        dataFrame.createGraph()
-                    case 2:
-                        dataFrame.categPlot()
-                    case 3:
-                        dataFrame.boxGraph()
-                    case 4:
-                        dataFrame.createGraph()
-                        dataFrame.categPlot()
-                        dataFrame.boxGraph()
-
+                opc=tipoGrafico.get()
+                if opc==0:
+                    messagebox.showerror("Error", "Por favor asegurese de elegir un tipo de gráfico")
+                else:
+                    match opc:
+                        case 1:
+                            dataFrame.createGraph()
+                        case 2:
+                            dataFrame.categPlot()
+                        case 3:
+                            dataFrame.boxGraph()
+                        case 4:
+                            dataFrame.categPlot(False)
+                        case 5:
+                            dataFrame.createGraph()
+                            dataFrame.categPlot()
+                            dataFrame.categPlot(False)
+                            dataFrame.boxGraph()
 
             case 2: #Estadísticas
                 new_window = Toplevel()
@@ -75,7 +67,6 @@ def obtener_seleccion():
                 tabla = Table(new_window, model=modelo, showtoolbar=True)
                 tabla.show()
 
-
 #Actualizar fechas a filtrar
 def submitDates():
     addFechasMes()
@@ -88,10 +79,7 @@ def submitDates():
         radio_buttonDF.config(state=NORMAL)
         boton_conti.config(state=NORMAL)
 
-        botonPlot.config(state=NORMAL)
-        botonPie.config(state=NORMAL)
-        botonBox.config(state=NORMAL)
-        botonAll.config(state=NORMAL)
+        botonesGrafico(NORMAL)
 
     else:
         radio_buttonGraficos.config(state=DISABLED)
@@ -99,11 +87,7 @@ def submitDates():
         radio_buttonDF.config(state=DISABLED)
         boton_conti.config(state=DISABLED)
 
-        botonPlot.config(state=DISABLED)
-        botonPie.config(state=DISABLED)
-        botonBox.config(state=DISABLED)
-        botonAll.config(state=DISABLED)
-
+        botonesGrafico(DISABLED)
 
 #Actualizar mes
 def addFechasMes(showData=True):    #TODO: SHOW DATA:
@@ -132,8 +116,6 @@ def addFechasMes(showData=True):    #TODO: SHOW DATA:
     else:
         messagebox.showerror("Error", "Por favor asegurese de elegir un mes valido")
 
-
-
 #Actualizar año
 def addFechasAño():
     global año, añoDone
@@ -154,6 +136,7 @@ def addFechasAño():
             añoEntry.config(text=str(año))
     else:
         messagebox.showerror("Error", "Por favor asegurese de elegir un año valido")
+
 #Elegir fechas:
 def toggle_listbox():
     global myLabel1, myLabel0, buttonDates1, buttonDates2
@@ -176,13 +159,7 @@ def toggle_listbox():
         buttonDates2.grid(row=4, column=3, padx=30)
 
     else:
-        listboxMeses.grid_forget()
-        listboxAños.grid_forget()
-        myLabel0.grid_forget()
-        myLabel1.grid_forget()
-        buttonDates1.grid_forget()
-        buttonDates2.grid_forget()
-
+        filtradoDeDatosForget()
 
 #Filtrar datos check:
 def checkButt():
@@ -203,10 +180,7 @@ def checkButt():
         boton_conti.config(state=DISABLED)
 
         if(elegirFuncion.get()==1):
-            botonPlot.config(state=DISABLED)
-            botonPie.config(state=DISABLED)
-            botonBox.config(state=DISABLED)
-            botonAll.config(state=DISABLED)
+            botonesGrafico(DISABLED)
 
 
         checkbox_var = IntVar()
@@ -237,10 +211,8 @@ def checkButt():
         boton_conti.config(state=NORMAL)
 
         if(elegirFuncion.get()==1):
-            botonPlot.config(state=NORMAL)
-            botonPie.config(state=NORMAL)
-            botonBox.config(state=NORMAL)
-            botonAll.config(state=NORMAL)
+            botonesGrafico(NORMAL)
+
 
         checkbox.grid_forget()
         labelMes.grid_forget()
@@ -249,15 +221,8 @@ def checkButt():
         añoEntry.grid_forget()
 
         buttonDone.grid_forget()
-        myLabel0.grid_forget()
-        myLabel1.grid_forget()
-        listboxMeses.grid_forget()
-        listboxAños.grid_forget()
-        buttonDates1.grid_forget()
-        buttonDates2.grid_forget()
+        filtradoDeDatosForget()
         
-
-
 #Mostrar opciones de uso del analísis de datos:
 def showDataAnalisys():
     global habilitarFiltrado, elegirFuncion, habilitarGraf, radio_buttonGraficos, radio_buttonEstadistics, radio_buttonDF, botonFiltrado, boton_conti, botonGraf
@@ -272,43 +237,36 @@ def showDataAnalisys():
     radio_buttonGraficos = Radiobutton(root, text="Gráficos", variable=elegirFuncion, value=1, command=chekOps)
     radio_buttonGraficos.grid(row=7, column=0, sticky='w')
 
-    radio_buttonEstadistics = Radiobutton(root, text="Observar estádisticas", variable=elegirFuncion, value=2, command=forget)
+    radio_buttonEstadistics = Radiobutton(root, text="Observar estádisticas", variable=elegirFuncion, value=2, command=botonesGraficoForget)
     radio_buttonEstadistics.grid(row=10, column=0, sticky='w')
 
-    radio_buttonDF = Radiobutton(root, text="Ver data-frame", variable=elegirFuncion, value=3, command=forget)
+    radio_buttonDF = Radiobutton(root, text="Ver data-frame", variable=elegirFuncion, value=3, command=botonesGraficoForget)
     radio_buttonDF.grid(row=11, column=0, sticky='w')
 
     #Boton de continuar:
     boton_conti = Button(root, text="Continuar", command=obtener_seleccion,fg="green", bg="white")
     boton_conti.grid(row=12, column=1, sticky="w")
 
-            
-
+#Elegir tipo de gráfico a desplegar:
 def chekOps():
-    global botonPlot, botonAll, botonBox, botonPie, tipoGrafico
+    global botonPlot, botonAll, botonBox, botonPie, botonCat, tipoGrafico
 
     tipoGrafico = IntVar()
 
-    botonPlot   = Radiobutton(root, text="Monto en función del tiempo", variable=tipoGrafico, value=1, fg="green")
+    botonPlot   = Radiobutton(root, text="Monto en función del tiempo",    variable=tipoGrafico, value=1, fg="green")
     botonPlot.grid(row=8, column=1, sticky="W")
 
-    botonPie    = Radiobutton(root, text="Gasto por categoría",         variable=tipoGrafico, value=2, fg="green")
+    botonPie    = Radiobutton(root, text="Gasto por categoría %",         variable=tipoGrafico, value=2, fg="green")
     botonPie.grid(row=8, column=2, sticky="W")
 
     botonBox    = Radiobutton(root, text="Diagrama de caja",            variable=tipoGrafico, value=3, fg="green")
     botonBox.grid(row=9, column=1, sticky="W")
 
-    botonAll    = Radiobutton(root, text="todos",                       variable=tipoGrafico, value=4, fg="green")
-    botonAll.grid(row=9, column=2, sticky="W")
+    botonCat    = Radiobutton(root, text="Gasto por categoría Núm",      variable=tipoGrafico, value=4, fg="green")
+    botonCat.grid(row=9, column=2, sticky="W")
 
-
-
-def forget():
-    print("HOLA")
-    botonPlot.grid_forget()
-    botonPie.grid_forget()
-    botonBox.grid_forget()
-    botonAll.grid_forget()
+    botonAll    = Radiobutton(root, text="todos",                       variable=tipoGrafico, value=5, fg="green")
+    botonAll.grid(row=8, column=3, sticky="W")
 
 #TODO: Manejar categorias
 def guardar_datos(condition):
@@ -340,12 +298,15 @@ def guardar_datos(condition):
         messagebox.showinfo("Realizado", "Sus datos fueron correctamente guardados.")
 
 
-# Funciones para las opciones del menú
+#%% Funciones para las opciones del menú
+
+#Abrir nuevo archivo manualmente:  #TODO:
 def habilitarFiltrado():
     rst()
     coin.grid_forget()
     resultado.config(text="Analizando nuevo archivo")
 
+#Abrir registro:
 def elegirFuncion():
     global dataFrame
     rst()
@@ -354,6 +315,7 @@ def elegirFuncion():
     dataFrame=processData(archivo="Registro.csv")
     showDataAnalisys()
 
+#Añadir dato manualmente al registro:
 def añadirDato():
     global  entry_monto, entry_concepto, guardado, listboxMeses, listboxDia, listboxAños, listboxCategoria
     rst()
@@ -408,6 +370,33 @@ def añadirDato():
     boton_guardar.grid(row=12, column=0, columnspan=2)
     guardado.grid(row=18, column=0)
 
+#%% WIDGET MANAGEMENT:
+##-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Habilitar o inhabilitar los botones para la opción de gráficos
+def botonesGrafico(miEstado):
+    botonPlot.config(state=miEstado)
+    botonPie.config (state=miEstado)
+    botonBox.config (state=miEstado)
+    botonCat.config (state=miEstado)
+    botonAll.config (state=miEstado)
+
+#Borrar existencia de los botones de elección de gráfico
+def botonesGraficoForget():
+    botonPlot.grid_forget()
+    botonPie.grid_forget()
+    botonBox.grid_forget()
+    botonCat.grid_forget()
+    botonAll.grid_forget()
+
+#Borrar existencia de los widgets de filtrado por fecha
+def filtradoDeDatosForget():
+    myLabel0.grid_forget()
+    myLabel1.grid_forget()
+    listboxMeses.grid_forget()
+    listboxAños.grid_forget()
+    buttonDates1.grid_forget()
+    buttonDates2.grid_forget()
 
 # Función para salir de la aplicación
 def rst():
@@ -417,7 +406,7 @@ def rst():
 
     coin.grid(row=0,column=0, padx=100, pady=100)
 
-
+#Verificar la exsitencia de determinado widget
 def widget_exists(widget):
     try:
         widget.winfo_exists()
@@ -425,6 +414,22 @@ def widget_exists(widget):
     except:
         return False
 
+#Manejar el gif de la pantalla de inicio
+def actualizar_gif(frame):
+    try:
+        # Carga el siguiente frame del GIF
+        image.seek(frame)
+        foto = ImageTk.PhotoImage(image)
+
+        # Actualiza la etiqueta con el nuevo frame
+        coin.configure(image=foto)
+        coin.image = foto
+
+        # Establece un temporizador para el siguiente frame
+        root.after(100, actualizar_gif, frame + 1)
+    except EOFError:
+        # Cuando llegamos al final del GIF, reiniciamos desde el principio
+        actualizar_gif(0)
 
 #%% MAIN:
 ##-----------------------------------------------------------------------------------------------------------------------------------------------------

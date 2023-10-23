@@ -185,14 +185,22 @@ class processData:
         self.df = self.df.reset_index(drop=True)
     
     #categPlot: Método para crear un gráfico de pastel.
-    def categPlot(self):
+    def categPlot(self, pie=True):
 
         plt.figure(figsize=(8, 8))
         conteo_categorias =self.section["Categorias"].value_counts()
-        
-        plt.pie(conteo_categorias, labels=conteo_categorias.index, autopct='%1.1f%%', startangle=140)
-        plt.title('Gasto según categorías', fontweight='bold')
-        plt.axis('equal')  # Para asegurarse de que el gráfico sea circular
+        if(pie):
+            plt.pie(conteo_categorias, labels=conteo_categorias.index, autopct='%1.1f%%', startangle=140)
+            plt.title('Gasto según categorías', fontweight='bold')
+            plt.axis('equal')  # Para asegurarse de que el gráfico sea circular
+        else:
+            conteo_categorias.plot(kind='bar')
+            plt.title("Transacciones realizadas por categoría", fontweight='bold')
+            plt.xlabel("Categorías")
+            plt.ylabel("Número de transacciones")
+            plt.grid(axis='y', linestyle='--')
+            plt.xticks(rotation=30)  # Rota las etiquetas del eje x para mayor legibilidad
+
         plt.show()
 
         
