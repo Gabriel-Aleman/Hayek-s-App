@@ -10,9 +10,11 @@ from PIL import Image, ImageTk
 #Variables globales:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiempre", "Octubre", "Noviembre", "Diciembre"]
+nDiasMeeses =[31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 categoria = ["Transporte", "Comida", "Entretenimiento", "Impuestos", "Servicios públicos", "Otros"]
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 
+#%%ABRIR REGISTRO
 #En base a la opción elegida por el usuario mostrar los resultados
 def obtener_seleccion():
     seleccion = elegirFuncion.get()
@@ -117,7 +119,7 @@ def addFechasMes(showData=True):    #TODO: SHOW DATA:
         messagebox.showerror("Error", "Por favor asegurese de elegir un mes valido")
 
 #Actualizar año
-def addFechasAño():
+def addFechasAño(showData=True):
     global año, añoDone
     año = listboxAños.get()
     
@@ -126,13 +128,16 @@ def addFechasAño():
     except ValueError:  #El año no es un número
         añoDone = False
     else:               #El año sí es un número
-        if año in yrs:
-            añoDone = True
+        if(showData):
+            if año in yrs:
+                añoDone = True
+            else:
+                añoDone = False
         else:
-            añoDone = False
-
+            añoDone = True
+    
     if(añoDone):
-        if widget_exists(añoEntry):
+        if showData:
             añoEntry.config(text=str(año))
     else:
         messagebox.showerror("Error", "Por favor asegurese de elegir un año valido")
@@ -268,34 +273,74 @@ def chekOps():
     botonAll    = Radiobutton(root, text="todos",                       variable=tipoGrafico, value=5, fg="green")
     botonAll.grid(row=8, column=3, sticky="W")
 
-#TODO: Manejar categorias
+#%%TODO: Manejar categorias
+#
+def actualizarDia(event):
+    mesEscogido=listboxMeses.get()
+    
+    if mesEscogido not in meses:
+        listboxDia['values'] = list(range(1, 32))
+    else:
+        mesEscogido=meses.index(mesEscogido)
+        listboxDia['values'] = list(range(1,nDiasMeeses[mesEscogido]+1))
+
 def guardar_datos(condition):
     addFechasMes(condition)
+    addFechasAño(condition)
+
+    diaDone  = False
+    montoDone = False
+    
     miMes = str(mes)
+    miAño = str(año)
+    listboxDia['values'] = list(range(1, 32))
+
     miDia = listboxDia.get()
-
-    if int(mes)<10:
-        miMes="0"+miMes
-
-    if int(miDia)<10:
-        miDia="0"+miDia
-
-
-    fecha = f"{listboxAños.get()}-{miMes}-{listboxDia.get()}"
     monto = entry_monto.get()
     concepto = entry_concepto.get()
     categoria = listboxCategoria.get()
-    
-    miSTR= fecha+","+concepto+","+monto+","+categoria+"\n"
-    
+
+    #Verificar que el monto es correcto:
     try:
-        #Guardar en archivo
-        with open("Registro.csv", 'a') as archivo:
-            archivo.write(miSTR)
+        monto = float(monto)
     except:
-        messagebox.showerror("Error", "No se pudo guardar en el archivo.")
+        messagebox.showerror("Error", "Ingrese un monto valido")
     else:
-        messagebox.showinfo("Realizado", "Sus datos fueron correctamente guardados.")
+        montoDone = True
+
+    #Verificar que el día es correcto:
+    try:
+        miDia1=int(miDia)
+    except:
+        pass
+    else:
+        if(miDia1<=31 and miDia1>=1):
+            diaDone =True
+
+    if (diaDone):
+        if miDia1<10:
+            miDia="0"+miDia
+    else:
+        messagebox.showerror("Error", "Ingrese un día valido")
+
+    
+    if(mesDone):
+        if int(mes)<10:
+            miMes="0"+miMes
+
+
+    if(añoDone and mesDone and diaDone and montoDone):
+        fecha = f"{miAño}-{miMes}-{miDia}"
+        miSTR= f"{fecha},{concepto},{monto},{categoria}\n"
+        
+        try:
+            #Guardar en archivo
+            with open("Registro.csv", 'a') as archivo:
+                archivo.write(miSTR)
+        except:
+            messagebox.showerror("Error", "No se pudo guardar en el archivo.")
+        else:
+            messagebox.showinfo("Realizado", "Sus datos fueron correctamente guardados.")
 
 
 #%% Funciones para las opciones del menú
@@ -321,16 +366,19 @@ def añadirDato():
     rst()
     coin.grid_forget()
 
+    # Extraer el año de la fecha actual
+    año_actual = dt.datetime.now().year
+
     # Crear etiquetas y campos de entrada para cada dato
     label_mes = Label(root, text="Mes:")
     listboxMeses = ttk.Combobox(root, values=meses)
 
 
     label_dia = Label(root, text="Día:")
-    listboxDia = ttk.Combobox(root, values=list(range(1, 31)))
+    listboxDia = ttk.Combobox(root, values=list(range(1, 31+1)))
 
     label_anio = Label(root, text="Año:")
-    listboxAños =  ttk.Combobox(root,  values=list(range(2000, 2023)))
+    listboxAños =  ttk.Combobox(root,  values=list(range(2000, año_actual+1)))
 
     label_categoria = Label(root, text="Categoría:")
     listboxCategoria = ttk.Combobox(root, values=categoria)
@@ -341,6 +389,9 @@ def añadirDato():
     label_concepto = Label(root, text="Concepto:")
     entry_concepto = Entry(root)
 
+    # Asociar la función de actualización al evento de selección del primer ComboBox
+    listboxMeses.bind("<FocusOut>", actualizarDia)
+    listboxMeses.bind("<Return>", actualizarDia)
 
     # Botón para guardar los datos
     boton_guardar = Button(root, text="Guardar", command=lambda:guardar_datos(False))
