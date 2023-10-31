@@ -8,8 +8,8 @@ import pdfplumber
 
 #Variables globales:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
-ruta_carpeta = "/Users/gabri/OneDrive/Escritorio/PROYECTO/archivos"
-
+ruta_carpeta = "./archivos"
+bancos =["BAC ahorros","BAC cred", "BCR ahorros", "BCR cred", "PROMERICA" ]
 
 #Funciones:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------

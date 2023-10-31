@@ -231,7 +231,6 @@ class processData:
 import random
 categorias=["Entretenimiento", "Transporte", "Comida", "Otros"]
 
-
 # Create the pandas DataFrame
 #df1 = createDataFrame(misArchivos[0], "BAC ahorros" )    #DONE
 df2 = createDataFrame(misArchivos[1], "BAC cred"    )    #DONE
