@@ -14,6 +14,7 @@ ruta_carpeta = "/Users/gabri/OneDrive/Escritorio/PROYECTO/archivos"
 meses       = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiempre", "Octubre", "Noviembre", "Diciembre"]
 nDiasMeeses = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 categoria   = ["Transporte", "Comida", "Entretenimiento", "Impuestos", "Servicios públicos", "Otros"]
+bancos =["BAC ahorros","BAC cred", "BCR ahorros", "BCR cred", "PROMERICA" ]
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 #%%LEEER ARCHIVO:   
 def siguiente_dato(conceptos, length):
@@ -29,7 +30,6 @@ def siguiente_dato(conceptos, length):
 
 
     if miIndice < length:
-        "+str(miIndice+1)+"
         # Cambiar la etiqueta para pedir el siguiente dato
         labelConcepto.config(text=conceptos[miIndice])
         labelX.config( text="Concepto "+str(miIndice+1)+":")
@@ -74,7 +74,9 @@ def formatData():
     global df1
 
     tipoX =tipo_combobox.get()
-
+    df1 = createDataFrame(archivo,  tipoX)
+    
+    print(archivo, tipoX) 
     try:
         df1 = createDataFrame(archivo,  tipoX)
         messagebox.showinfo("Exito", "Sus datos fueron procesados correctamente.")
@@ -116,7 +118,7 @@ def seleccionarDeCarpeta(event):
 
     if seleccion:
         indice = seleccion[0]
-        archivo1 = archivosEnCarpeta.get(indice)
+        archivo1 = "archivos/"+archivosEnCarpeta.get(indice)
         extension1 = archivo1[-4:].lower()
         checkExtent(archivo1, extension1)
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -222,6 +224,17 @@ def obtener_seleccion():
         messagebox.showerror("Error", "Los rangos seleccionados no tienen información.")
     
     else:
+        if habilitarFiltrado.get(): #Revisar si se filtraron por fechas
+            appendFechas= f" (Mes: {mes} - Año: {año})"
+            titGraph = dataFrame.createGraph.__defaults__[0]+appendFechas
+            titCat = dataFrame.categPlot.__defaults__[0]+appendFechas
+            titBox = dataFrame.boxGraph.__defaults__[0]+appendFechas
+
+        else:
+            titGraph = dataFrame.createGraph.__defaults__[0]
+            titCat = dataFrame.categPlot.__defaults__[0]
+            titBox = dataFrame.boxGraph.__defaults__[0]
+
         #Elegir la opción
         match seleccion:
             case 1: #Gráficos
@@ -231,17 +244,17 @@ def obtener_seleccion():
                 else:
                     match opc:
                         case 1:
-                            dataFrame.createGraph()
+                            dataFrame.createGraph(miTitulo=titGraph)
                         case 2:
-                            dataFrame.categPlot()
+                            dataFrame.categPlot(miTitulo=titCat)
                         case 3:
-                            dataFrame.boxGraph()
+                            dataFrame.boxGraph(miTitulo=titBox)
                         case 4:
-                            dataFrame.categPlot(False)
+                            dataFrame.categPlot(pie=False)
                         case 5:
                             dataFrame.createGraph()
                             dataFrame.categPlot()
-                            dataFrame.categPlot(False)
+                            dataFrame.categPlot(pie=False)
                             dataFrame.boxGraph()
 
             case 2: #Estadísticas
@@ -369,7 +382,7 @@ def checkButt():
     yrs = dataFrame.getYearsList()   # Lista de años
 
     #Inh
-    if habilitarFiltrado.get() == 1 :
+    if habilitarFiltrado.get():
 
         listboxMeses = ttk.Combobox(root, values=meses)
         listboxAños =  ttk.Combobox(root,  values=yrs)
@@ -414,20 +427,21 @@ def checkButt():
         if(elegirFuncion.get()==1):
             botonesGrafico(NORMAL)
 
+        try:
+            checkbox.grid_forget()
+            labelMes.grid_forget()
+            labelAño.grid_forget()
+            mesEntry.grid_forget()
+            añoEntry.grid_forget()
 
-        checkbox.grid_forget()
-        labelMes.grid_forget()
-        labelAño.grid_forget()
-        mesEntry.grid_forget()
-        añoEntry.grid_forget()
-
-        buttonDone.grid_forget()
-        filtradoDeDatosForget()
+            buttonDone.grid_forget()
+            filtradoDeDatosForget()
+        except: pass
         
 #Mostrar opciones de uso del analísis de datos:
 def showDataAnalisys():
     global habilitarFiltrado, elegirFuncion, habilitarGraf, radio_buttonGraficos, radio_buttonEstadistics, radio_buttonDF, botonFiltrado, boton_conti, botonGraf
-    habilitarFiltrado = IntVar()
+    habilitarFiltrado = BooleanVar()
     
     elegirFuncion = IntVar()
     habilitarGraf = IntVar()
@@ -454,7 +468,7 @@ def chekOps():
 
     tipoGrafico = IntVar()
 
-    botonPlot   = Radiobutton(root, text="Monto en función del tiempo",    variable=tipoGrafico, value=1, fg="green")
+    botonPlot   = Radiobutton(root, text="Transacciones en función del tiempo",    variable=tipoGrafico, value=1, fg="green")
     botonPlot.grid(row=8, column=1, sticky="W")
 
     botonPie    = Radiobutton(root, text="Gasto por categoría %",         variable=tipoGrafico, value=2, fg="green")
@@ -631,19 +645,22 @@ def update_datetime():
     root.after(1000, update_datetime)
 #Habilitar o inhabilitar los botones para la opción de gráficos
 def botonesGrafico(miEstado):
-    botonPlot.config(state=miEstado)
-    botonPie.config (state=miEstado)
-    botonBox.config (state=miEstado)
-    botonCat.config (state=miEstado)
-    botonAll.config (state=miEstado)
-
+    try:
+        botonPlot.config(state=miEstado)
+        botonPie.config (state=miEstado)
+        botonBox.config (state=miEstado)
+        botonCat.config (state=miEstado)
+        botonAll.config (state=miEstado)
+    except: pass
 #Borrar existencia de los botones de elección de gráfico
 def botonesGraficoForget():
-    botonPlot.grid_forget()
-    botonPie.grid_forget()
-    botonBox.grid_forget()
-    botonCat.grid_forget()
-    botonAll.grid_forget()
+    try:
+        botonPlot.grid_forget()
+        botonPie.grid_forget()
+        botonBox.grid_forget()
+        botonCat.grid_forget()
+        botonAll.grid_forget()
+    except: pass
 
 #Borrar existencia de los widgets de filtrado por fecha
 def filtradoDeDatosForget():
@@ -729,7 +746,7 @@ resultado.grid(row=0, column=0)
 
 # Botón de continuar:
 boton_rst = Button(root, text="Reiniciar", command=rst,fg="green", bg="white")
-boton_rst.grid(row=12, column=0, sticky="w")
+boton_rst.grid(row=12, column=0, sticky="w", pady=10, padx=5)
 
 image = Image.open("coin.gif")
 #logo = Image.open('logo.png')

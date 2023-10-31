@@ -6,12 +6,6 @@ import re
 import pandas as pd
 import pdfplumber
 
-#Variables globales:
-#-----------------------------------------------------------------------------------------------------------------------------------------------------
-ruta_carpeta = "./archivos"
-bancos =["BAC ahorros","BAC cred", "BCR ahorros", "BCR cred", "PROMERICA" ]
-
-#Funciones:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -287,7 +281,7 @@ outputs:
 
 """
 def createDataFrame(archivo, tipo=None,):
-    miArchivo     = "archivos/"+archivo  #Done
+    miArchivo     = archivo  #Done
 
     match tipo:
         case "BAC ahorros":

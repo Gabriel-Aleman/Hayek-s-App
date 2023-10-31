@@ -111,7 +111,7 @@ class processData:
         self.section =self.df[(self.df['Fecha'].dt.year == año) & (self.df['Fecha'].dt.month == mes)]
 
     #createGraph: Atributo para crear un gráfico de los montos como función del tiempo.
-    def createGraph(self):
+    def createGraph(self,  miTitulo='Evolución de transacciones con el tiempo'):
         df_agregado = self.section.groupby('Fecha')['Monto'].sum().reset_index()             #Sumar los gastos de cada fecha
         plt.plot(df_agregado['Fecha'], df_agregado['Monto'], marker='o', linestyle='-', color='b')
         plt.fill_between(df_agregado['Fecha'], df_agregado['Monto'], hatch='//', edgecolor='lightblue', facecolor='cyan')
@@ -119,7 +119,7 @@ class processData:
         # Personaliza la gráfica
         plt.xlabel('Fecha')
         plt.ylabel('Valor')
-        plt.title('Evolución de gasto con el tiempo', fontweight='bold')
+        plt.title(miTitulo, fontweight='bold')
         plt.grid(axis='y', linestyle='--', alpha=0.7)
 
         # Rotar las etiquetas del eje x para mejorar la legibilidad si es necesario
@@ -129,13 +129,13 @@ class processData:
         plt.show()
     
     #boxGraph: Método para crear un gráfico de caja.
-    def boxGraph(self):
+    def boxGraph(self, miTitulo='Diagrama de Caja para transacciones'):
         # Crear el diagrama de caja para la columna "Datos"
         plt.boxplot(self.section['Monto'], vert=False)  # Utiliza vert=False para un diagrama de caja horizontal
 
         # Personaliza el gráfico
         plt.xlabel('Valor')
-        plt.title('Diagrama de Caja para los gastos', fontweight='bold')
+        plt.title(miTitulo, fontweight='bold')
 
         # Muestra el gráfico
         plt.show()
@@ -201,17 +201,17 @@ class processData:
         self.df = self.df.reset_index(drop=True)
     
     #categPlot: Método para crear un gráfico de pastel.
-    def categPlot(self, pie=True):
+    def categPlot(self, miTitulo="Gasto por categorias", pie=True):
 
         plt.figure(figsize=(8, 8))
         conteo_categorias =self.section["Categorias"].value_counts()
         if(pie):
             plt.pie(conteo_categorias, labels=conteo_categorias.index, autopct='%1.1f%%', startangle=140)
-            plt.title('Gasto según categorías', fontweight='bold')
+            plt.title(miTitulo+" (%)", fontweight='bold')
             plt.axis('equal')  # Para asegurarse de que el gráfico sea circular
         else:
             conteo_categorias.plot(kind='bar')
-            plt.title("Transacciones realizadas por categoría", fontweight='bold')
+            plt.title(miTitulo+" (Total)", fontweight='bold')
             plt.xlabel("Categorías")
             plt.ylabel("Número de transacciones")
             plt.grid(axis='y', linestyle='--')

@@ -54,8 +54,8 @@ def askCategories():
     labelY =Label(nueva_ventana, text="Cateogría: ")
     labelY.grid(row=1, column=0, sticky="e")
 
-    addCat = Button(nueva_ventana, text="Siguiente", command=lambda : siguiente_dato(conceptos, len(conceptos)))
-    addCat.grid(row=2, column=0, sticky="e")
+    addCat = Button(nueva_ventana, text="Siguiente", command=lambda : siguiente_dato(conceptos, len(conceptos)), width=20, fg="green")
+    addCat.grid(row=2, column=1, sticky="e")
 
 
     combo_Cat = ttk.Combobox(nueva_ventana, values=categoria)
