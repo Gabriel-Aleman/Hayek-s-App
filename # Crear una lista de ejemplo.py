@@ -1,16 +1,28 @@
-# Crear una lista de ejemplo
-mi_lista = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+import numpy as np
+import matplotlib.pyplot as plt
 
-# Definir el rango que deseas eliminar utilizando índices negativos (por ejemplo, eliminar los últimos 3 elementos)
-indice_inicio = -3
-indice_fin = -1
+# Datos
+labels = np.array(['A', 'B', 'C', 'D'])
+stats = np.array([20, 35, 30, 35])
 
-# Calcular los índices positivos equivalentes
-indice_inicio = len(mi_lista) + indice_inicio
-indice_fin = len(mi_lista) + indice_fin
+# Número de variables
+num_vars = len(labels)
 
-# Eliminar el rango especificado de la lista original
-del mi_lista[indice_inicio:indice_fin+1]
+# Ángulos para cada eje
+angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
 
-# La lista original ahora contiene los elementos sin el rango especificado
-print(mi_lista)
+# Asegurar que el gráfico sea cerrado
+stats = np.concatenate((stats, [stats[0]]))
+angles += angles[:1]
+
+# Crear el gráfico
+fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+ax.fill(angles, stats, color='red', alpha=0.25)
+ax.plot(angles, stats, color='red', linewidth=2)
+
+# Etiquetas tangenciales al círculo
+for angle, label in zip(angles, labels):
+    ax.text(angle, 40, label, ha='center', va='center', rotation=angle * 180/np.pi - 90)
+
+# Mostrar el gráfico
+plt.show()

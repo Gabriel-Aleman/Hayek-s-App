@@ -340,7 +340,7 @@ def createDataFrame(archivo, tipo=None,):
             data            = elementosRepetidos(textoFiltrado, lenMat= 3, indice_pred=-2)
 
 
-            df = pd.DataFrame(data, columns=['Fecha contable', 'Conceptos', "Monto"])
+            df = pd.DataFrame(data, columns=['Fecha contable', 'Concepto', "Monto"])
         case _:
             None
 

@@ -1,6 +1,6 @@
 #Librerias
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
-from tkinter import *
+from calculadora import *
 from dataAnalisys import *
 
 from tkinter import ttk, messagebox, filedialog
@@ -17,6 +17,9 @@ categoria   = ["Transporte", "Comida", "Entretenimiento", "Impuestos", "Servicio
 bancos =["BAC ahorros","BAC cred", "BCR ahorros", "BCR cred", "PROMERICA" ]
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 #%%LEEER ARCHIVO:   
+def proccessFile(myDf):
+    chooseFunc(myDf)
+
 def siguiente_dato(conceptos, length):
     global miIndice
     # Obtener el dato ingresado
@@ -49,6 +52,9 @@ def askCategories():
     datos = []  # Lista para almacenar los datos
     
     nueva_ventana = Toplevel(root)
+    nueva_ventana.iconbitmap("iconos/lista.ico")
+
+    
     nueva_ventana.title("Ingresando categorías")
 
     conceptos = df1.df["Concepto"].to_list()
@@ -62,8 +68,8 @@ def askCategories():
     labelY =Label(nueva_ventana, text="Cateogría: ")
     labelY.grid(row=1, column=0, sticky="e")
 
-    addCat = Button(nueva_ventana, text="Siguiente", command=lambda : siguiente_dato(conceptos, len(conceptos)))
-    addCat.grid(row=2, column=0, sticky="e")
+    addCat = Button(nueva_ventana, text="Siguiente", command=lambda : siguiente_dato(conceptos, len(conceptos)), bg="green", fg="white", width=20)
+    addCat.grid(row=2, column=1, pady=5)
 
 
     combo_Cat = ttk.Combobox(nueva_ventana, values=categoria)
@@ -74,7 +80,6 @@ def formatData():
     global df1
 
     tipoX =tipo_combobox.get()
-    df1 = createDataFrame(archivo,  tipoX)
     
     print(archivo, tipoX) 
     try:
@@ -206,7 +211,7 @@ def abrirArchivo():
     buttonSave    = Button(root, text="Guardar datos en el registro", command = guardarEnCSV, fg="green", bg="white", font=("Bold",9))
     buttonSave.grid(row=12, column=1, sticky="w",  pady=10)
 
-    buttonProcesar    = Button(root, text="Analizar estos datos", command = None, fg="green", bg="white", font=("Bold",9))
+    buttonProcesar    = Button(root, text="Analizar estos datos", command = lambda: proccessFile(df1), fg="green", bg="white", font=("Bold",9))
     buttonProcesar.grid(row=12, column=2, sticky="w",  pady=10)
 
     buttonSave.config(state="disabled")
@@ -256,9 +261,13 @@ def obtener_seleccion():
                             dataFrame.categPlot()
                             dataFrame.categPlot(pie=False)
                             dataFrame.boxGraph()
+                            dataFrame.hist()
+
 
             case 2: #Estadísticas
                 new_window = Toplevel()
+                new_window.iconbitmap("iconos/icon.ico")
+
                 new_window.title("Estadísticas:")
                 estadisticas=dataFrame.stadistics()
                 results1 = Label(new_window, text="RESULTADOS OBTENIDOS", font=("Arial", 12, "bold"), fg="green")
@@ -269,6 +278,7 @@ def obtener_seleccion():
             case 3: #Ver data-Frame
                 df=dataFrame.section
                 new_window = Toplevel()
+                new_window.iconbitmap("iconos/tabla.ico")
                 new_window.title("DataFrame:")
 
                 # Crear un modelo de datos para PandasTable
@@ -562,13 +572,16 @@ def habilitarFiltrado():
     resultado.config(text="Analizando nuevo archivo")
 
 #Abrir registro:
-def elegirFuncion():
+def chooseFunc(myDf=None):
     clearBeginScreen()
 
     global dataFrame
 
     resultado.config(text="Abriendo registro")
-    dataFrame=processData(archivo="Registro.csv")
+    if myDf==None:
+        dataFrame=processData(archivo="Registro.csv")
+    else:
+        dataFrame = myDf
     showDataAnalisys()
 
 #Añadir dato manualmente al registro:
@@ -716,7 +729,7 @@ def actualizar_gif(frame):
 
 root= Tk()
 root.title("Hayek's app")
-root.iconbitmap("icon.ico")
+root.iconbitmap("iconos/icon.ico")
 
 
 
@@ -732,8 +745,14 @@ root.config(menu=menu_principal)
 menu_opciones = Menu(menu_principal)
 menu_principal.add_cascade(label="Opciones", menu=menu_opciones)
 menu_opciones.add_command(label="Seleccionar archivo", command=habilitarFiltrado)
-menu_opciones.add_command(label="Abrir registro", command=elegirFuncion)
+menu_opciones.add_command(label="Abrir registro", command=chooseFunc)
 menu_opciones.add_command(label="Añadir dato al registro manual", command=añadirDato)
+
+#Calculadora:
+calculadora = Menu(menu_principal, tearoff=0)
+menu_principal.add_cascade(label="Abrir calculadora", menu=calculadora)
+calculadora.add_command(label="Abrir calculadora", command=calculator)
+
 
 
 # Agregar una opción para reiniciar el programa

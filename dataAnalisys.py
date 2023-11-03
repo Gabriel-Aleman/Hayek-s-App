@@ -1,5 +1,6 @@
 from fileManagement import *
 import matplotlib.pyplot as plt
+from numpy import pi, linspace, concatenate, degrees
 import datetime as dt
 
 """
@@ -110,36 +111,6 @@ class processData:
         #self.section = self.df[(self.df['Fecha'].dt.year == año) & (self.df['Fecha'].dt.month == mes)]
         self.section =self.df[(self.df['Fecha'].dt.year == año) & (self.df['Fecha'].dt.month == mes)]
 
-    #createGraph: Atributo para crear un gráfico de los montos como función del tiempo.
-    def createGraph(self,  miTitulo='Evolución de transacciones con el tiempo'):
-        df_agregado = self.section.groupby('Fecha')['Monto'].sum().reset_index()             #Sumar los gastos de cada fecha
-        plt.plot(df_agregado['Fecha'], df_agregado['Monto'], marker='o', linestyle='-', color='b')
-        plt.fill_between(df_agregado['Fecha'], df_agregado['Monto'], hatch='//', edgecolor='lightblue', facecolor='cyan')
-
-        # Personaliza la gráfica
-        plt.xlabel('Fecha')
-        plt.ylabel('Valor')
-        plt.title(miTitulo, fontweight='bold')
-        plt.grid(axis='y', linestyle='--', alpha=0.7)
-
-        # Rotar las etiquetas del eje x para mejorar la legibilidad si es necesario
-        plt.xticks(rotation=20)
-
-        # Muestra la gráfica
-        plt.show()
-    
-    #boxGraph: Método para crear un gráfico de caja.
-    def boxGraph(self, miTitulo='Diagrama de Caja para transacciones'):
-        # Crear el diagrama de caja para la columna "Datos"
-        plt.boxplot(self.section['Monto'], vert=False)  # Utiliza vert=False para un diagrama de caja horizontal
-
-        # Personaliza el gráfico
-        plt.xlabel('Valor')
-        plt.title(miTitulo, fontweight='bold')
-
-        # Muestra el gráfico
-        plt.show()
-    
     #stadistics: Método para obtener los resultados estadísticos.
     #outputs: 
     #   -estadisticas: Resultados estadiísticos.
@@ -199,26 +170,95 @@ class processData:
         self.df = pd.read_csv(self.archivo, names=column_names)
         self.df = self.df.sort_values(by='Fecha', ascending=True)
         self.df = self.df.reset_index(drop=True)
+        
+    #createGraph: Atributo para crear un gráfico de los montos como función del tiempo.
+    def createGraph(self,  miTitulo='Evolución de transacciones con el tiempo'):
+        df_agregado = self.section.groupby('Fecha')['Monto'].sum().reset_index()             #Sumar los gastos de cada fecha
+        plt.plot(df_agregado['Fecha'], df_agregado['Monto'], marker='o', linestyle='-', color='b')
+        plt.fill_between(df_agregado['Fecha'], df_agregado['Monto'], hatch='//', edgecolor='lightblue', facecolor='cyan')
+
+        # Personaliza la gráfica
+        plt.xlabel('Fecha')
+        plt.ylabel('Valor')
+        plt.title(miTitulo, fontweight='bold')
+        plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+        # Rotar las etiquetas del eje x para mejorar la legibilidad si es necesario
+        plt.xticks(rotation=20)
+
+        # Muestra la gráfica
+        plt.show()
+    
+    #boxGraph: Método para crear un gráfico de caja.
+    def boxGraph(self, miTitulo='Diagrama de Caja para transacciones'):
+        # Crear el diagrama de caja para la columna "Datos"
+        plt.boxplot(self.section['Monto'], vert=False)  # Utiliza vert=False para un diagrama de caja horizontal
+
+        # Personaliza el gráfico
+        plt.xlabel('Valor')
+        plt.title(miTitulo, fontweight='bold')
+
+        # Muestra el gráfico
+        plt.show()
+    
     
     #categPlot: Método para crear un gráfico de pastel.
     def categPlot(self, miTitulo="Gasto por categorias", pie=True):
 
-        plt.figure(figsize=(8, 8))
         conteo_categorias =self.section["Categorias"].value_counts()
         if(pie):
             plt.pie(conteo_categorias, labels=conteo_categorias.index, autopct='%1.1f%%', startangle=140)
             plt.title(miTitulo+" (%)", fontweight='bold')
             plt.axis('equal')  # Para asegurarse de que el gráfico sea circular
+
         else:
-            conteo_categorias.plot(kind='bar')
-            plt.title(miTitulo+" (Total)", fontweight='bold')
-            plt.xlabel("Categorías")
-            plt.ylabel("Número de transacciones")
-            plt.grid(axis='y', linestyle='--')
-            plt.xticks(rotation=30)  # Rota las etiquetas del eje x para mayor legibilidad
+            categories = conteo_categorias.index
+            values = conteo_categorias.values
+
+            num_vars = len(categories)
+
+            # Calcular los ángulos para el gráfico de radar
+            angles = linspace(0, 2 * pi, num_vars, endpoint=False).tolist()
+
+            # Asegurarse de que se cierre el gráfico
+            values = concatenate((values, [values[0]]))
+            angles += angles[:1]
+
+            # Crear el gráfico de radar
+            fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+            ax.fill(angles, values, color='green', alpha=0.25)
+
+            # Agregar las etiquetas en cada ángulo
+            ax.set_yticklabels([])
+            ax.set_xticks(angles[:-1])
+            
+            # Rotar las etiquetas
+            ax.set_xticklabels(categories, rotation=degrees(angles), fontsize=12)
+
+
+            # Agregar las etiquetas con la cantidad de veces que se repite cada categoría en cada círculo
+            # Etiquetar cada punto en el radar con el nombre del elemento y su cantidad
+            for i, (label, count) in enumerate(zip(categories, values)):
+                angle = angles [i]
+                ax.plot(angle, count, marker='o', markersize=2, color='black')
+                ax.text(angle, count-0.4, f'{count}', ha='center', va='center')
+
+            plt.title(miTitulo+" (Núm)", fontweight='bold')
+            ax.plot(angles, values, color='green', linewidth=1, linestyle='solid')
 
         plt.show()
 
+        
+
+    #hist: Atributo para crear histograma de las transacciones realizadas
+    def hist(self, miTtitulo="Histograma de la columna de transacciones", defBins=5):
+        # Graficar un histograma de la columna 'columna_de_datos'
+        plt.hist(self.section['Monto'], bins=defBins)  # Cambia el número de bins según tu preferencia
+        plt.xlabel('Gastos de transacciónes')
+        plt.ylabel('Frecuencias')
+        plt.title(miTtitulo)
+        plt.grid()
+        plt.show()
         
 
 
