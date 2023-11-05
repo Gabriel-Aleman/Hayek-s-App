@@ -1,22 +1,8 @@
-#Librerias
-#-----------------------------------------------------------------------------------------------------------------------------------------------------
-from calculadora import *
-from dataAnalisys import *
-
-from tkinter import ttk, messagebox, filedialog
-from pandastable import Table, TableModel
-from PIL import Image, ImageTk
-
-#Variables globales:
-#-----------------------------------------------------------------------------------------------------------------------------------------------------
-ruta_carpeta = "/Users/gabri/OneDrive/Escritorio/PROYECTO/archivos"
-
-meses       = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiempre", "Octubre", "Noviembre", "Diciembre"]
-nDiasMeeses = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-categoria   = ["Transporte", "Comida", "Entretenimiento", "Impuestos", "Servicios públicos", "Otros"]
-bancos =["BAC ahorros","BAC cred", "BCR ahorros", "BCR cred", "PROMERICA" ]
+from header import *
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 #%%LEEER ARCHIVO:   
+#-----------------------------------------------------------------------------------------------------------------------------------------------------
+
 def proccessFile(myDf):
     chooseFunc(myDf)
 
@@ -234,11 +220,14 @@ def obtener_seleccion():
             titGraph = dataFrame.createGraph.__defaults__[0]+appendFechas
             titCat = dataFrame.categPlot.__defaults__[0]+appendFechas
             titBox = dataFrame.boxGraph.__defaults__[0]+appendFechas
+            titHist = dataFrame.hist.__defaults__[0]+appendFechas
 
         else:
             titGraph = dataFrame.createGraph.__defaults__[0]
             titCat = dataFrame.categPlot.__defaults__[0]
             titBox = dataFrame.boxGraph.__defaults__[0]
+            titHist = dataFrame.hist.__defaults__[0]
+
 
         #Elegir la opción
         match seleccion:
@@ -255,13 +244,15 @@ def obtener_seleccion():
                         case 3:
                             dataFrame.boxGraph(miTitulo=titBox)
                         case 4:
-                            dataFrame.categPlot(pie=False)
+                            dataFrame.categPlot(miTitulo=titCat, pie=False)
                         case 5:
-                            dataFrame.createGraph()
-                            dataFrame.categPlot()
-                            dataFrame.categPlot(pie=False)
-                            dataFrame.boxGraph()
-                            dataFrame.hist()
+                            dataFrame.hist(miTitulo=titHist, defBins=bins)
+                        case 6:
+                            dataFrame.createGraph(miTitulo=titGraph)
+                            dataFrame.categPlot(miTitulo=titCat)
+                            dataFrame.categPlot(miTitulo=titCat,pie=False)
+                            dataFrame.boxGraph(miTitulo=titBox)
+                            dataFrame.hist(miTitulo=titHist, defBins=bins)
 
 
             case 2: #Estadísticas
@@ -472,9 +463,39 @@ def showDataAnalisys():
     boton_conti = Button(root, text="Continuar", command=obtener_seleccion,fg="green", bg="white")
     boton_conti.grid(row=12, column=1, sticky="w")
 
+def watch(locBin, window):
+    global bins
+    binEntry = locBin.get()
+    try:
+        locBinInt = int(binEntry)
+    except:
+        messagebox.showerror("Error", "Asegurese de que el valor sea un número entero")
+    else:
+        messagebox.showinfo("Exito", "Se hizo el cambio existosamente.")
+
+        bins = locBinInt
+        window.destroy()
+
+#Preguntar al usuario si desea cambiar los grids del histograma:
+def askGrid():
+    global bins
+
+    answer = messagebox.askyesno("Cambiar bins", "¿Desea cambiar el número predeterminado de divisiones?")
+    if answer:
+        nueva_ventana= Toplevel()
+        nueva_ventana.iconbitmap("iconos/icon.ico")
+
+        binsAsk=Entry(nueva_ventana, width=20)
+        binsAsk.insert(0, "Cantidad de divisiones")  # Insertar el texto inicial en la entrad
+        binsAsk.pack()
+        continuar = Button(nueva_ventana, text="Continuar", bg="green", fg="white",  command= lambda: watch(binsAsk, nueva_ventana), width=15)
+        continuar.pack()
+    else:
+        bins = dataFrame.hist.__defaults__[1]
+
 #Elegir tipo de gráfico a desplegar:
 def chekOps():
-    global botonPlot, botonAll, botonBox, botonPie, botonCat, tipoGrafico
+    global botonPlot, botonAll, botonBox, botonPie, botonCat, botonHist, tipoGrafico
 
     tipoGrafico = IntVar()
 
@@ -490,11 +511,14 @@ def chekOps():
     botonCat    = Radiobutton(root, text="Gasto por categoría Núm",      variable=tipoGrafico, value=4, fg="green")
     botonCat.grid(row=9, column=2, sticky="W")
 
-    botonAll    = Radiobutton(root, text="todos",                       variable=tipoGrafico, value=5, fg="green")
-    botonAll.grid(row=8, column=3, sticky="W")
+    botonHist    = Radiobutton(root, text="Histograma de gastos",        variable=tipoGrafico, value=5, fg="green", command=askGrid)
+    botonHist.grid(row=8, column=3, sticky="W")
 
-#%%TODO: Manejar categorias
-#
+    botonAll    = Radiobutton(root, text="todos",                       variable=tipoGrafico, value=6, fg="green")
+    botonAll.grid(row=9, column=3, sticky="W")
+
+#%%Añadir datos manualmente
+
 def actualizarDia(event):
     mesEscogido=listboxMeses.get()
     
@@ -569,7 +593,6 @@ def guardar_datos(condition):
 def habilitarFiltrado():
     clearBeginScreen()
     abrirArchivo()
-    resultado.config(text="Analizando nuevo archivo")
 
 #Abrir registro:
 def chooseFunc(myDf=None):
@@ -577,7 +600,6 @@ def chooseFunc(myDf=None):
 
     global dataFrame
 
-    resultado.config(text="Abriendo registro")
     if myDf==None:
         dataFrame=processData(archivo="Registro.csv")
     else:
@@ -663,6 +685,7 @@ def botonesGrafico(miEstado):
         botonPie.config (state=miEstado)
         botonBox.config (state=miEstado)
         botonCat.config (state=miEstado)
+        botonHist.config (state=miEstado)
         botonAll.config (state=miEstado)
     except: pass
 #Borrar existencia de los botones de elección de gráfico
@@ -672,6 +695,7 @@ def botonesGraficoForget():
         botonPie.grid_forget()
         botonBox.grid_forget()
         botonCat.grid_forget()
+        botonHist.grid_forget()
         botonAll.grid_forget()
     except: pass
 
@@ -744,8 +768,8 @@ root.config(menu=menu_principal)
 # Crear un menú desplegable "Opciones"
 menu_opciones = Menu(menu_principal)
 menu_principal.add_cascade(label="Opciones", menu=menu_opciones)
-menu_opciones.add_command(label="Seleccionar archivo", command=habilitarFiltrado)
 menu_opciones.add_command(label="Abrir registro", command=chooseFunc)
+menu_opciones.add_command(label="Abrir archivo", command=habilitarFiltrado)
 menu_opciones.add_command(label="Añadir dato al registro manual", command=añadirDato)
 
 #Calculadora:
@@ -758,10 +782,6 @@ calculadora.add_command(label="Abrir calculadora", command=calculator)
 # Agregar una opción para reiniciar el programa
 menu_opciones.add_separator()
 menu_opciones.add_command(label="Salir", command=root.destroy)
-
-# Etiqueta de resultado
-resultado = Label(root, text="")
-resultado.grid(row=0, column=0)
 
 # Botón de continuar:
 boton_rst = Button(root, text="Reiniciar", command=rst,fg="green", bg="white")

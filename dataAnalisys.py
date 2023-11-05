@@ -251,13 +251,13 @@ class processData:
         
 
     #hist: Atributo para crear histograma de las transacciones realizadas
-    def hist(self, miTtitulo="Histograma de la columna de transacciones", defBins=5):
+    def hist(self, miTitulo="Histograma de transacciones", defBins=5):
         # Graficar un histograma de la columna 'columna_de_datos'
-        plt.hist(self.section['Monto'], bins=defBins)  # Cambia el número de bins según tu preferencia
-        plt.xlabel('Gastos de transacciónes')
-        plt.ylabel('Frecuencias')
-        plt.title(miTtitulo)
-        plt.grid()
+        plt.hist(self.section['Monto'], density=True, bins=defBins, color='magenta', edgecolor='black')  # Cambia el número de bins según tu preferencia
+        plt.xlabel('Transacciónes')
+        plt.ylabel('Frecuencias relativa (0-1)')
+        plt.title(miTitulo, fontweight='bold')
+        plt.grid(axis='y')
         plt.show()
         
 
