@@ -6,23 +6,75 @@ from header import *
 def proccessFile(myDf):
     chooseFunc(myDf)
 
-def siguiente_dato(conceptos, length):
-    global miIndice
+
+def askCategories():
+    global datos, combo_Cat, labelConcepto, nueva_ventana, labelX, misNuevosElementos, indiceCategoras
+    useSavedConcepts = False
+    mi_diccionario= readSavedConcepts() #Categorías guardadas
+
+
+    conceptos = df1.df["Concepto"].to_list()
+    datos =  [None for _ in conceptos]
+    
+    misIndices = []             #Elementos a guardar
+    misNuevosElementos = []     #Valores  a guardar
+    indiceCategoras = 0
+
+    if len(mi_diccionario) != 0:
+        useSavedConcepts = messagebox.askyesno("Pregunta", "¿Desea asignar aútomaticamente las categorías a concetos ya guardados?")
+
+    nueva_ventana = Toplevel(root)
+    nueva_ventana.iconbitmap("iconos/lista.ico")
+
+    
+    nueva_ventana.title("Ingresando categorías")
+    
+    if useSavedConcepts:
+        for i in range(len(conceptos)):
+            if conceptos[i] in mi_diccionario:
+                datos[i] = mi_diccionario[conceptos[i]]
+            else:
+                misIndices.append(i)    #Elemento donde hay un None
+    else:
+        misIndices = list(range(len(conceptos)))
+
+    
+    labelX =Label(nueva_ventana, text="Concepto 1:")
+    labelX.grid(row=0, column=0, sticky="e")
+
+    labelConcepto =Label(nueva_ventana, text=conceptos[misIndices[0]])
+    labelConcepto.grid(row=0, column=1)
+
+    labelY =Label(nueva_ventana, text="Cateogría: ")
+    labelY.grid(row=1, column=0, sticky="e")
+
+    addCat = Button(nueva_ventana, text="Siguiente", command=lambda : siguiente_dato(conceptos, len(misIndices), misIndices), bg="green", fg="white", width=20)
+    addCat.grid(row=2, column=1, pady=5)
+
+
+    combo_Cat = ttk.Combobox(nueva_ventana, values=categoria)
+    combo_Cat.grid(row=1, column=1)
+
+def siguiente_dato(conceptos, length, misIndices):
+    global indiceCategoras
     # Obtener el dato ingresado
     dato = combo_Cat.get()
 
     # Agregar el dato a la lista de datos
-    datos.append(dato)
+    misNuevosElementos.append(dato)
 
     # Aumentar el índice para seguir con el siguiente dato
-    miIndice += 1
+    indiceCategoras = indiceCategoras+1
 
 
-    if miIndice < length:
+    if indiceCategoras < length:
         # Cambiar la etiqueta para pedir el siguiente dato
-        labelConcepto.config(text=conceptos[miIndice])
-        labelX.config( text="Concepto "+str(miIndice+1)+":")
+        labelConcepto.config(text=conceptos[misIndices[indiceCategoras]])
+        labelX.config( text="Concepto "+str(indiceCategoras+1)+":")
     else:
+        for i in range(len(misIndices)):
+            datos[misIndices[i]]=misNuevosElementos[i]
+            
         # Si se ingresaron los 5 datos, mostrar los datos y cerrar la ventana
         df1.addCategories(datos)
         buttonSave.config(state="normal")
@@ -30,37 +82,6 @@ def siguiente_dato(conceptos, length):
         messagebox.showinfo("Exito", "Se añadieron las categorías existosamente.")
         print(df1.df)
         nueva_ventana.destroy()
-
-
-def askCategories():
-    global datos, combo_Cat, labelConcepto, nueva_ventana, miIndice, labelX
-    miIndice = 0
-    datos = []  # Lista para almacenar los datos
-    
-    nueva_ventana = Toplevel(root)
-    nueva_ventana.iconbitmap("iconos/lista.ico")
-
-    
-    nueva_ventana.title("Ingresando categorías")
-
-    conceptos = df1.df["Concepto"].to_list()
-
-    labelX =Label(nueva_ventana, text="Concepto 1:")
-    labelX.grid(row=0, column=0, sticky="e")
-
-    labelConcepto =Label(nueva_ventana, text=conceptos[miIndice])
-    labelConcepto.grid(row=0, column=1)
-
-    labelY =Label(nueva_ventana, text="Cateogría: ")
-    labelY.grid(row=1, column=0, sticky="e")
-
-    addCat = Button(nueva_ventana, text="Siguiente", command=lambda : siguiente_dato(conceptos, len(conceptos)), bg="green", fg="white", width=20)
-    addCat.grid(row=2, column=1, pady=5)
-
-
-    combo_Cat = ttk.Combobox(nueva_ventana, values=categoria)
-    combo_Cat.grid(row=1, column=1)
-
 
 def formatData():
     global df1
@@ -127,6 +148,7 @@ def abrir_archivo():
         extension1 = os.path.splitext(archivo1)[1]
         checkExtent(archivo1, extension1)
 
+#Función para abrir carpeta predeterminada:
 def carpeta_archivo():
     global checkbox_var, checkbox
     # Crear una variable Tkinter para el estado del CheckBox
@@ -139,7 +161,7 @@ def carpeta_archivo():
     if(len(misArchivos)>0):
         toggle_listbox_state()
 
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Guardar datos del archivo en un CSV
 def guardarEnCSV():
     respuesta = messagebox.askyesno("Pregunta", "¿Está seguro que quiere añadir estos datos al registro?")
     if respuesta:  # Si el usuario elige "Sí"
@@ -147,7 +169,7 @@ def guardarEnCSV():
         df1.guardar_csv()
 
     
-
+#Inicio de la opción de archivos:
 def abrirArchivo():
     global archivosEnCarpeta, ruta_labelRes, exte_labelRes, misArchivos, tipo_combobox, submitButton, tipo_label, buttonSave, buttonProcesar
 
@@ -519,6 +541,7 @@ def chekOps():
 
 #%%Añadir datos manualmente
 
+#Aactualizar días disponibles en función del mes seleccionado
 def actualizarDia(event):
     mesEscogido=listboxMeses.get()
     
@@ -528,6 +551,7 @@ def actualizarDia(event):
         mesEscogido=meses.index(mesEscogido)
         listboxDia['values'] = list(range(1,nDiasMeeses[mesEscogido]+1))
 
+#Guardar datos manualmente en el registro
 def guardar_datos(condition):
     addFechasMes(condition)
     addFechasAño(condition)
@@ -591,11 +615,13 @@ def guardar_datos(condition):
 
 #Abrir nuevo archivo manualmente:  #TODO:
 def habilitarFiltrado():
+    cerrar_ventanas()
     clearBeginScreen()
     abrirArchivo()
 
 #Abrir registro:
 def chooseFunc(myDf=None):
+    cerrar_ventanas()
     clearBeginScreen()
 
     global dataFrame
@@ -608,6 +634,7 @@ def chooseFunc(myDf=None):
 
 #Añadir dato manualmente al registro:
 def añadirDato():
+    cerrar_ventanas()
     clearBeginScreen()
     global  entry_monto, entry_concepto, guardado, listboxMeses, listboxDia, listboxAños, listboxCategoria
 
@@ -668,6 +695,11 @@ def añadirDato():
 
 #%% WIDGET MANAGEMENT:
 ##-----------------------------------------------------------------------------------------------------------------------------------------------------
+def cerrar_ventanas():
+    # Función para cerrar todas las ventanas Toplevel
+    for widget in root.winfo_children():
+        if isinstance(widget, Toplevel):
+            widget.destroy()
 
 def update_datetime():
     current_datetime = dt.datetime.now()
@@ -710,6 +742,7 @@ def filtradoDeDatosForget():
 
 # Función para salir de la aplicación
 def rst():
+    cerrar_ventanas()
     clearBeginScreen()
     coin.grid(row=0,column=0, padx=10, pady=10)
     date_label.grid(row=1, column=0, sticky="w")

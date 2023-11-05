@@ -1,13 +1,7 @@
-import matplotlib.pyplot as plt
-import numpy as np
+mi_array = [1, 2, 3, 4, 5]  # Tu array
 
-# Datos de ejemplo
-data = np.random.randn(1000)
+# Crear un nuevo array que vaya de 0 al len del array original
+nuevo_array = list(range(len(mi_array)))
 
-# Calcular frecuencias relativas en porcentaje
-frecuencia, bins, _ = plt.hist(data, bins=30, color='skyblue', edgecolor='black', alpha=0.7)
-frecuencia_porcentaje = (frecuencia / len(data)) * 100
-
-# Graficar el histograma con frecuencias relativas en porcentaje
-plt.ylabel('Frecuencia Relativa (%)')  # Etiqueta del eje y
-plt.show()
+print("Nuevo array que va de 0 al len del array original:")
+print(nuevo_array)

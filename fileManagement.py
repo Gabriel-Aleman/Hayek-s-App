@@ -8,7 +8,6 @@ import pdfplumber
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-
 """
 encontrarArchivos: Función para ubicar los archivos con los que se pretende
 trabajar.
@@ -345,3 +344,21 @@ def createDataFrame(archivo, tipo=None,):
             None
 
     return df
+
+"""
+readSavedConcepts: Función para procesar los conceptos cuyas categorías respectivas
+ya fueron guardadas.
+Outputs:
+    -diccionario: diccionario con las categorías salvadas
+"""
+def readSavedConcepts():
+    # Lee el archivo y crea el diccionario
+    diccionario = {}
+    with open('conceptosGuardados.txt', 'r') as file:
+        for line in file:
+            key, value = line.strip().split(':')  # Separa la línea en clave y valor
+            diccionario[key] = value  # Agrega la clave y valor al diccionario
+    return diccionario
+
+#TestBench:
+#-----------------------------------------------------------------------------------------------------------------------------------------------------
