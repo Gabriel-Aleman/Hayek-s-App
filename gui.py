@@ -17,7 +17,6 @@ def askCategories():
     datos =  [None for _ in conceptos]
     
     misIndices = []             #Elementos a guardar
-    misNuevosElementos = []     #Valores  a guardar
     indiceCategoras = 0
 
     if len(mi_diccionario) != 0:
@@ -28,7 +27,7 @@ def askCategories():
 
     
     nueva_ventana.title("Ingresando categorías")
-    
+
     if useSavedConcepts:
         for i in range(len(conceptos)):
             if conceptos[i] in mi_diccionario:
@@ -37,6 +36,8 @@ def askCategories():
                 misIndices.append(i)    #Elemento donde hay un None
     else:
         misIndices = list(range(len(conceptos)))
+
+    misNuevosElementos = [None for _ in misIndices]     #Valores  a guardar
 
     
     labelX =Label(nueva_ventana, text="Concepto 1:")
@@ -51,6 +52,8 @@ def askCategories():
     addCat = Button(nueva_ventana, text="Siguiente", command=lambda : siguiente_dato(conceptos, len(misIndices), misIndices), bg="green", fg="white", width=20)
     addCat.grid(row=2, column=1, pady=5)
 
+    back = Button(nueva_ventana, text="Anterior", command=lambda: datoAnterior(conceptos, misIndices), bg="green", fg="white", width=20)
+    back.grid(row=2, column=0, pady=5, padx=5)
 
     combo_Cat = ttk.Combobox(nueva_ventana, values=categoria)
     combo_Cat.grid(row=1, column=1)
@@ -61,7 +64,7 @@ def siguiente_dato(conceptos, length, misIndices):
     dato = combo_Cat.get()
 
     # Agregar el dato a la lista de datos
-    misNuevosElementos.append(dato)
+    misNuevosElementos[indiceCategoras]=dato
 
     # Aumentar el índice para seguir con el siguiente dato
     indiceCategoras = indiceCategoras+1
@@ -82,6 +85,21 @@ def siguiente_dato(conceptos, length, misIndices):
         messagebox.showinfo("Exito", "Se añadieron las categorías existosamente.")
         print(df1.df)
         nueva_ventana.destroy()
+
+def datoAnterior(conceptos, misIndices):
+    global indiceCategoras
+
+    if indiceCategoras>=1:
+
+        # Aumentar el índice para seguir con el siguiente dato
+        indiceCategoras = indiceCategoras-1
+        
+        # Cambiar la etiqueta para pedir el siguiente dato
+        labelConcepto.config(text=conceptos[misIndices[indiceCategoras]])
+        labelX.config( text="Concepto "+str(indiceCategoras+1)+":")
+
+    else: 
+        pass
 
 def formatData():
     global df1
