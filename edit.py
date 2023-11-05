@@ -44,6 +44,7 @@ def eliminarConcepto():
     global combo, ventana, conceptosGuardados
 
     ventana = Toplevel()
+    ventana.resizable(False, False)
     ventana.iconbitmap("iconos/icon.ico")
     ventana.title("Eliminar concepto")
     conceptosGuardados=readSavedConcepts()
@@ -85,6 +86,7 @@ def guardarConcepto():
     global entry, combo, ventana
 
     ventana = Toplevel()
+    ventana.resizable(False, False)
     ventana.iconbitmap("iconos/icon.ico")
     ventana.title("Guardar concepto")
 

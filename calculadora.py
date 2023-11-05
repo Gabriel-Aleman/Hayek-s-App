@@ -127,6 +127,8 @@ def calculator():
     E = '*10**'
 
     tk_calc = Toplevel()
+    tk_calc.resizable(False, False)
+
     tk_calc.iconbitmap("iconos/calculadora.ico")
 
     tk_calc.configure(bg="#293C4A", bd=5)

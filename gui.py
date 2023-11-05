@@ -23,6 +23,8 @@ def askCategories():
         useSavedConcepts = messagebox.askyesno("Pregunta", "¿Desea asignar aútomaticamente las categorías a concetos ya guardados?")
 
     nueva_ventana = Toplevel(root)
+    nueva_ventana.resizable(False, False)
+
     nueva_ventana.iconbitmap("iconos/lista.ico")
 
     
@@ -297,6 +299,8 @@ def obtener_seleccion():
 
             case 2: #Estadísticas
                 new_window = Toplevel()
+                new_window.resizable(False, False)
+
                 new_window.iconbitmap("iconos/icon.ico")
 
                 new_window.title("Estadísticas:")
@@ -309,6 +313,7 @@ def obtener_seleccion():
             case 3: #Ver data-Frame
                 df=dataFrame.section
                 new_window = Toplevel()
+                new_window.resizable(False, False)
                 new_window.iconbitmap("iconos/tabla.ico")
                 new_window.title("DataFrame:")
 
@@ -523,6 +528,8 @@ def askGrid():
     answer = messagebox.askyesno("Cambiar bins", "¿Desea cambiar el número predeterminado de divisiones?")
     if answer:
         nueva_ventana= Toplevel()
+        nueva_ventana.resizable(False, False)
+
         nueva_ventana.iconbitmap("iconos/icon.ico")
 
         binsAsk=Entry(nueva_ventana, width=20)
@@ -807,8 +814,6 @@ root.title("Hayek's app")
 root.iconbitmap("iconos/icon.ico")
 
 
-#root.wm_attributes('-zoomed', False)  # Deshabilita el botón de maximizar
-#root.wm_attributes('-topmost', True)   # Mantiene la ventana en la parte superior
 # Crear un menú
 menu_principal = Menu(root)
 
