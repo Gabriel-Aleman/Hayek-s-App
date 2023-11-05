@@ -2,3 +2,4 @@ DEBITO_COMPASS:Otros
 Pops:Comida
 UCR:Otros
 Libreria:Entretenimiento
+gato:Transporte

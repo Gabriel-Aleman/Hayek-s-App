@@ -1,4 +1,4 @@
-from header import *
+from edit import *
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
 #%%LEEER ARCHIVO:   
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -807,7 +807,6 @@ root.title("Hayek's app")
 root.iconbitmap("iconos/icon.ico")
 
 
-
 #root.wm_attributes('-zoomed', False)  # Deshabilita el botón de maximizar
 #root.wm_attributes('-topmost', True)   # Mantiene la ventana en la parte superior
 # Crear un menú
@@ -822,6 +821,15 @@ menu_principal.add_cascade(label="Opciones", menu=menu_opciones)
 menu_opciones.add_command(label="Abrir registro", command=chooseFunc)
 menu_opciones.add_command(label="Abrir archivo", command=habilitarFiltrado)
 menu_opciones.add_command(label="Añadir dato al registro manual", command=añadirDato)
+
+
+# Crear un menú desplegable "Editar"
+menu_opciones = Menu(menu_principal)
+menu_principal.add_cascade(label="Editar", menu=menu_opciones)
+menu_opciones.add_command(label="Guardar nuevo concepto", command=guardarConcepto)
+menu_opciones.add_command(label="Eliminar concepto", command=eliminarConcepto)
+menu_opciones.add_command(label="Reiniciar registro de conceptos", command=lambda: borrar_contenido_archivo("conceptosGuardados.txt"))
+menu_opciones.add_command(label="Reiniciar contenido del registro", command=lambda: borrar_contenido_archivo("Registro.csv"))
 
 #Calculadora:
 calculadora = Menu(menu_principal, tearoff=0)

@@ -359,6 +359,3 @@ def readSavedConcepts():
             key, value = line.strip().split(':')  # Separa la línea en clave y valor
             diccionario[key] = value  # Agrega la clave y valor al diccionario
     return diccionario
-
-#TestBench:
-#-----------------------------------------------------------------------------------------------------------------------------------------------------
