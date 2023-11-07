@@ -1,7 +1,11 @@
 from fileManagement import *
-import matplotlib.pyplot as plt
 from numpy import pi, linspace, concatenate, degrees
+from PIL import Image, ImageTk
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
 import datetime as dt
+
 
 """
 processData: Clase para procesar la información relativa a los datos del banco.
@@ -110,6 +114,23 @@ class processData:
         self.df['Fecha'] = pd.to_datetime(self.df['Fecha'])
         #self.section = self.df[(self.df['Fecha'].dt.year == año) & (self.df['Fecha'].dt.month == mes)]
         self.section =self.df[(self.df['Fecha'].dt.year == año) & (self.df['Fecha'].dt.month == mes)]
+    
+    #chooseSegmentSimple: Metodo para elegir los datos a analizar, por rango de tiempo.
+    #inputs:
+    #    -option: Rango de tiempo (semana, mes, año)
+    def chooseSegmentSimple(self, option):
+        hoy = dt.datetime.now()
+        
+        match option:
+            case "Última semana":
+                section = hoy - dt.timedelta(days=7)
+            case "Último mes":
+                section = hoy - dt.timedelta(days=30)
+            case "Último año" :
+                section = hoy - dt.timedelta(days=365)
+            case _:
+                pass
+        self.section = self.df[(self.df['Fecha'] >= section) & (self.df['Fecha'] <= hoy)]
 
     #stadistics: Método para obtener los resultados estadísticos.
     #outputs: 
@@ -174,6 +195,8 @@ class processData:
     #createGraph: Atributo para crear un gráfico de los montos como función del tiempo.
     def createGraph(self,  miTitulo='Evolución de transacciones con el tiempo'):
         df_agregado = self.section.groupby('Fecha')['Monto'].sum().reset_index()             #Sumar los gastos de cada fecha
+        
+        plt.figure(figsize=(9, 7))  # Ancho x Alto en pulgadas
         plt.plot(df_agregado['Fecha'], df_agregado['Monto'], marker='o', linestyle='-', color='b')
         plt.fill_between(df_agregado['Fecha'], df_agregado['Monto'], hatch='//', edgecolor='lightblue', facecolor='cyan')
 
@@ -186,17 +209,23 @@ class processData:
         # Rotar las etiquetas del eje x para mejorar la legibilidad si es necesario
         plt.xticks(rotation=20)
 
+        plt.savefig("resultados/plot.png")
+
         # Muestra la gráfica
         plt.show()
     
     #boxGraph: Método para crear un gráfico de caja.
     def boxGraph(self, miTitulo='Diagrama de Caja para transacciones'):
+        plt.figure(figsize=(7, 5))  # Ancho x Alto en pulgadas
+
         # Crear el diagrama de caja para la columna "Datos"
         plt.boxplot(self.section['Monto'], vert=False)  # Utiliza vert=False para un diagrama de caja horizontal
 
         # Personaliza el gráfico
         plt.xlabel('Valor')
         plt.title(miTitulo, fontweight='bold')
+
+        plt.savefig("resultados/boxDiag.png")
 
         # Muestra el gráfico
         plt.show()
@@ -207,9 +236,11 @@ class processData:
 
         conteo_categorias =self.section["Categorias"].value_counts()
         if(pie):
+            plt.figure(figsize=(9, 7))  # Ancho x Alto en pulgadas
             plt.pie(conteo_categorias, labels=conteo_categorias.index, autopct='%1.1f%%', startangle=140)
             plt.title(miTitulo+" (%)", fontweight='bold')
             plt.axis('equal')  # Para asegurarse de que el gráfico sea circular
+            plt.savefig("resultados/categorias(%).png")
 
         else:
             categories = conteo_categorias.index
@@ -246,18 +277,22 @@ class processData:
             plt.title(miTitulo+" (Núm)", fontweight='bold')
             ax.plot(angles, values, color='green', linewidth=1, linestyle='solid')
 
+            plt.savefig("resultados/categorias(Núm).png")
         plt.show()
 
         
 
     #hist: Atributo para crear histograma de las transacciones realizadas
     def hist(self, miTitulo="Histograma de transacciones", defBins=5):
+        plt.figure(figsize=(8, 6))  # Ancho x Alto en pulgadas
+
         # Graficar un histograma de la columna 'columna_de_datos'
         plt.hist(self.section['Monto'], density=True, bins=defBins, color='magenta', edgecolor='black')  # Cambia el número de bins según tu preferencia
         plt.xlabel('Transacciónes')
         plt.ylabel('Frecuencias relativa (0-1)')
         plt.title(miTitulo, fontweight='bold')
         plt.grid(axis='y')
+        plt.savefig("resultados/histograma.png")
         plt.show()
         
 

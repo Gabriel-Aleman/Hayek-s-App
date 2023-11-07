@@ -15,3 +15,4 @@ meses       = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "
 nDiasMeeses = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 categoria   = ["Transporte", "Comida", "Entretenimiento", "Impuestos", "Servicios públicos", "Otros"]
 bancos      = ["BAC ahorros","BAC cred", "BCR ahorros", "BCR cred", "PROMERICA" ]
+opcionesFil = ["Última semana", "Último mes", "Último año"]
