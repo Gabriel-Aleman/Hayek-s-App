@@ -37,6 +37,9 @@ class processData:
         else:
             print("CONFIGURACIÓN INVALIDA")
 
+        self.df['Fecha'] = pd.to_datetime(self.df['Fecha'])
+        
+
         
     #addCategories: Método para añadir categorias
     #inputs:
@@ -111,7 +114,6 @@ class processData:
     #    -mes: Mes a elegir
     #    -año: Año a elegir
     def chooseSegment(self, mes, año):
-        self.df['Fecha'] = pd.to_datetime(self.df['Fecha'])
         #self.section = self.df[(self.df['Fecha'].dt.year == año) & (self.df['Fecha'].dt.month == mes)]
         self.section =self.df[(self.df['Fecha'].dt.year == año) & (self.df['Fecha'].dt.month == mes)]
     
@@ -119,6 +121,7 @@ class processData:
     #inputs:
     #    -option: Rango de tiempo (semana, mes, año)
     def chooseSegmentSimple(self, option):
+
         hoy = dt.datetime.now()
         
         match option:

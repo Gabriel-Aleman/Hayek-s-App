@@ -257,25 +257,24 @@ def obtener_seleccion():
         messagebox.showerror("Error", "Los rangos seleccionados no tienen información.")
     
     else:
-        if habilitarFiltrado.get() and filtradoFechas.get()==1:    #Revisar si se filtraron por fechas
-            appendFechas= f" (Mes: {mes} - Año: {año})"
-
-        elif habilitarFiltrado.get() and filtradoFechas.get()==2:  #Revisar si se filtro por semanana, mes, año
-           appendFechas =  " ("+opcionesFiltrado.get()+")"
-        else:
-            appendFechas ="" #No añadir nada
-        
-        #Titulos gráficos:
-        titGraph = dataFrame.createGraph.__defaults__[0]+appendFechas
-        titCat = dataFrame.categPlot.__defaults__[0]+appendFechas
-        titBox = dataFrame.boxGraph.__defaults__[0]+appendFechas
-        titHist = dataFrame.hist.__defaults__[0]+appendFechas
 
         #Elegir la opción
         match seleccion:
             case 1: #Gráficos
 
+                if habilitarFiltrado.get() and filtradoFechas.get()==1:    #Revisar si se filtraron por fechas
+                    appendFechas= f" (Mes: {mes} - Año: {año})"
 
+                elif habilitarFiltrado.get() and filtradoFechas.get()==2:  #Revisar si se filtro por semanana, mes, año
+                    appendFechas =  " ("+opcionesFiltrado.get()+")"
+                else:
+                    appendFechas ="" #No añadir nada
+                
+                #Titulos gráficos:
+                titGraph = dataFrame.createGraph.__defaults__[0]+appendFechas
+                titCat = dataFrame.categPlot.__defaults__[0]+appendFechas
+                titBox = dataFrame.boxGraph.__defaults__[0]+appendFechas
+                titHist = dataFrame.hist.__defaults__[0]+appendFechas
 
                 
                 opc=tipoGrafico.get()
@@ -318,6 +317,8 @@ def obtener_seleccion():
             case 3: #Ver data-Frame
                 df=dataFrame.section
                 new_window = Toplevel()
+                new_window.geometry("800x400")  # Establece el tamaño de la ventana a 400 píxeles de ancho y 300 píxeles de alto
+
                 new_window.iconbitmap("iconos/tabla.ico")
                 new_window.title("DataFrame:")
 
@@ -425,9 +426,10 @@ def toggle_listbox():
     else:
         filtradoDeDatosForget()
 
+#Elegir función para filtrado simple:
 def chooseFilter():
     op = opcionesFiltrado.get()
-
+    print(op)
     if op not in opcionesFil:
         messagebox.showerror("Error", "Debe seleccionar un rango valido.")
 
@@ -446,144 +448,164 @@ def chooseFilter():
 
         botonesGrafico(NORMAL)
 
+#FILTRADO SIMPLE:
 def filtradoSimpleFunc():
     global opcionesFiltrado, opcionesFiltradoLabel, opcionesFiltradoBoton
     print("LLAMANDO filtradoSimple")
-    try:
-        checkbox.grid_forget()
-        labelMes.grid_forget()
-        labelAño.grid_forget()
-        mesEntry.grid_forget()
-        añoEntry.grid_forget()
+    print(filtradoFechas.get())
 
-        buttonDone.grid_forget()
-        filtradoDeDatosForget()
+    disable()
+
+    try:
+        borrarSimple()
     except: pass
 
-    #Inh
-    if habilitarFiltrado.get():
-        opcionesFiltrado = ttk.Combobox(root, values=opcionesFil)
-        opcionesFiltrado.grid(row=6, column=2, padx=5, pady=5)
+    try:
+        borrarAvanzado()
+    except: pass
 
-        opcionesFiltradoLabel = Label(root, text="Opción de filtrado")
-        opcionesFiltradoLabel.grid(row=6, column=1, pady=5)
+    opcionesFiltrado = ttk.Combobox(root, values=opcionesFil)
+    opcionesFiltrado.grid(row=6, column=2, padx=5, pady=5)
 
-        opcionesFiltradoBoton = Button(root, text="Seleccionar rango", bg="green", fg="white", width=18, command=chooseFilter)
-        opcionesFiltradoBoton.grid(row=7, column=2, padx=5, pady=5)
-    else:
-        opcionesFiltrado.grid_forget()
-        opcionesFiltradoLabel.grid_forget()
-        opcionesFiltradoBoton.grid_forget()
+    opcionesFiltradoLabel = Label(root, text="Opción de filtrado")
+    opcionesFiltradoLabel.grid(row=6, column=1, pady=5)
+
+    opcionesFiltradoBoton = Button(root, text="Seleccionar rango", bg="green", fg="white", width=18, command=chooseFilter)
+    opcionesFiltradoBoton.grid(row=7, column=2, padx=5, pady=5)
 
 
+#FILTRADO AVANZADO:
 def filtradoAvanzadoFunc():
-    try:
-        filtradoAvanzado.grid_forget()
-        filtradoSimple.grid_forget()
-        opcionesFiltrado.grid_forget()
-        opcionesFiltradoLabel.grid_forget()
-        opcionesFiltradoBoton.grid_forget()
-    except: pass
-    unableFilter()
+    global checkbox_var, checkbox, labelAño, labelMes, mesEntry, añoEntry, buttonDone, yrs, listboxMeses, listboxAños
+    print("LLAMANDO filtradoAvanzado")
+    print(filtradoFechas.get())
 
-    checkButt()
+    disable()
+
+    try:
+        borrarAvanzado()
+    except: pass
+    
+    try:
+        borrarSimple()
+    except: pass
+
+
+    yrs = dataFrame.getYearsList()   # Lista de años
+
+
+    listboxMeses = ttk.Combobox(root, values=meses)
+    listboxAños =  ttk.Combobox(root,  values=yrs)
+
+    checkbox_var = IntVar()
+    checkbox = Checkbutton(root, text="Mostrar Lista de Opciones", variable=checkbox_var, command=toggle_listbox)
+    checkbox.grid(row=2, column=2)
+
+    labelMes = Label(root, text="Mes seleccionado:")
+    labelAño = Label(root, text="Año seleccionado:")
+
+    labelMes.grid(row=6, column=0)
+    labelAño.grid(row=6, column=1)
+
+    mesEntry = Label(root, text="----", bg="white", padx=30)
+    mesEntry.grid(row=7, column=0)
+
+    añoEntry = Label(root, text="----", bg="white", padx=30)
+    añoEntry.grid(row=7, column=1)
+
+    buttonDone = Button(root, text="Listo", relief=RAISED, font=("Helvetica", 12, "bold"), command=submitDates )
+    buttonDone.grid(row=7, column=2)
 
 
 #Filtrar datos check:
 def checkButt():
-    global checkbox_var, checkbox, labelAño, labelMes, mesEntry, añoEntry, buttonDone, yrs, listboxMeses, listboxAños
-
-    filtradoFechas.set(1)
-
-    yrs = dataFrame.getYearsList()   # Lista de años
 
     print(filtradoFechas.get())
 
-    #Inh
+
+
+    #Se quiere filtrar datos:
     if habilitarFiltrado.get():
-        filtradoAvanzado.grid(row=1, column=1 )
-        filtradoSimple.grid(row=1, column=2 )
+        disable()
 
-        
-
-        listboxMeses = ttk.Combobox(root, values=meses)
-        listboxAños =  ttk.Combobox(root,  values=yrs)
-
-
-        radio_buttonGraficos.config(state=DISABLED)
-        radio_buttonEstadistics.config(state=DISABLED)
-        radio_buttonDF.config(state=DISABLED)
-        boton_conti.config(state=DISABLED)
-
+        #INHABILITAR GRÁFICOS
         if(elegirFuncion.get()==1):
             botonesGrafico(DISABLED)
 
+        #OPCIONES DE FILTRADO
+        filtradoAvanzado.grid(row=1, column=1 )
+        filtradoSimple.grid(row=1, column=2 )
 
-        checkbox_var = IntVar()
-        checkbox = Checkbutton(root, text="Mostrar Lista de Opciones", variable=checkbox_var, command=toggle_listbox)
-        checkbox.grid(row=2, column=2)
+        filtradoAvanzadoFunc()
 
-        labelMes = Label(root, text="Mes seleccionado:")
-        labelAño = Label(root, text="Año seleccionado:")
-
-        labelMes.grid(row=6, column=0)
-        labelAño.grid(row=6, column=1)
-
-        mesEntry = Label(root, text="----", bg="white", padx=30)
-        mesEntry.grid(row=7, column=0)
-
-        añoEntry = Label(root, text="----", bg="white", padx=30)
-        añoEntry.grid(row=7, column=1)
-
-        buttonDone = Button(root, text="Listo", relief=RAISED, font=("Helvetica", 12, "bold"), command=submitDates )
-        buttonDone.grid(row=7, column=2)
 
     else:
-        try:
-            filtradoAvanzado.grid_forget()
-            filtradoSimple.grid_forget()
-        except: pass
+        filtradoAvanzado.grid_forget()
+        filtradoSimple.grid_forget()
         unableFilter()
 
+#INHABILITAR OPCIONES:
+def disable():
+    radio_buttonGraficos.config(state=DISABLED)
+    radio_buttonEstadistics.config(state=DISABLED)
+    radio_buttonDF.config(state=DISABLED)
+    boton_conti.config(state=DISABLED)
 
+#Quitar opciones de filtrado:
 def unableFilter():
     dataFrame.section = dataFrame.df
 
+    #Rehabilitar el uso de botones
     radio_buttonGraficos.config(state=NORMAL)
     radio_buttonEstadistics.config(state=NORMAL)
     radio_buttonDF.config(state=NORMAL)
     boton_conti.config(state=NORMAL)
 
+    #Rehabilitar opciones de gráfico
     if(elegirFuncion.get()==1):
         botonesGrafico(NORMAL)
 
+
+    #BORRADO---------------------------------------------------------------------
     filtradoAvanzado.grid_forget()
     filtradoSimple.grid_forget()
 
-    try:
-        checkbox.grid_forget()
-        labelMes.grid_forget()
-        labelAño.grid_forget()
-        mesEntry.grid_forget()
-        añoEntry.grid_forget()
+    #FILTRADO AVANZADO:
+    if filtradoFechas.get()==1:
+       borrarAvanzado()
 
-        buttonDone.grid_forget()
+    #FILTRADO SIMPLE:
+    else:
+        borrarSimple()
+    
+def borrarAvanzado():
+    for widget in root.winfo_children():
+        if widget ==checkbox or widget ==labelMes or widget ==labelAño or widget ==mesEntry or widget ==añoEntry or widget ==buttonDone:
+            widget.grid_forget()
+            
+    if checkbox_var.get()==1:
         filtradoDeDatosForget()
-    except: pass
-        
+
+def borrarSimple():
+    for widget in root.winfo_children():
+        if widget ==opcionesFiltrado or widget ==opcionesFiltradoLabel or widget ==opcionesFiltradoBoton:
+            widget.grid_forget()
+
+
 #Mostrar opciones de uso del analísis de datos:
 def showDataAnalisys():
     global habilitarFiltrado, elegirFuncion, habilitarGraf, radio_buttonGraficos, radio_buttonEstadistics, radio_buttonDF, botonFiltrado, boton_conti
     global filtradoAvanzado, filtradoSimple, filtradoFechas
 
+    # Variables de control
+    filtradoFechas = IntVar()
+    filtradoFechas.set(1)
+    
     habilitarFiltrado = BooleanVar()
     
     elegirFuncion = IntVar()
     habilitarGraf = IntVar()
 
-    # Variables de control
-    filtradoFechas = IntVar()
-    filtradoFechas.set(1)
 
     botonFiltrado = Checkbutton(root, text="Filtrar datos",   variable=habilitarFiltrado, command=checkButt)
     botonFiltrado.grid(row=1, column=0, sticky='w')
@@ -611,7 +633,8 @@ def showDataAnalisys():
 
     filtradoSimple = Radiobutton(root, text="Filtrado simple", variable=filtradoFechas, value=2, command=filtradoSimpleFunc, **estilo_radio)
 
-#Ca
+
+#Cambiar bins del histograma
 def watch(locBin, window):
     global bins
     binEntry = locBin.get()
@@ -866,12 +889,9 @@ def botonesGraficoForget():
 
 #Borrar existencia de los widgets de filtrado por fecha
 def filtradoDeDatosForget():
-    myLabel0.grid_forget()
-    myLabel1.grid_forget()
-    listboxMeses.grid_forget()
-    listboxAños.grid_forget()
-    buttonDates1.grid_forget()
-    buttonDates2.grid_forget()
+    for widget in root.winfo_children():
+        if widget ==myLabel0 or widget ==myLabel1 or widget ==listboxMeses or widget ==listboxAños or widget ==buttonDates1 or widget ==buttonDates2:
+            widget.grid_forget()
 
 # Función para salir de la aplicación
 def rst():
