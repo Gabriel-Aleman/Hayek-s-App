@@ -237,10 +237,10 @@ def abrirArchivo():
     
     #Opciones a posteriorí:
     buttonSave    = Button(root, text="Guardar datos en el registro", command = guardarEnCSV, fg="green", bg="white", font=("Bold",9))
-    buttonSave.grid(row=12, column=1, sticky="w",  pady=10)
+    buttonSave.grid(row=lastLine, column=1, sticky="w",  pady=10)
 
     buttonProcesar    = Button(root, text="Analizar estos datos", command = lambda: proccessFile(df1), fg="green", bg="white", font=("Bold",9))
-    buttonProcesar.grid(row=12, column=2, sticky="w",  pady=10)
+    buttonProcesar.grid(row=lastLine, column=2, sticky="w",  pady=10)
 
     buttonSave.config(state="disabled")
     buttonProcesar.config(state="disabled")
@@ -257,18 +257,18 @@ def obtener_seleccion():
         messagebox.showerror("Error", "Los rangos seleccionados no tienen información.")
     
     else:
+        if habilitarFiltrado.get() and filtradoFechas.get()==1:    #Revisar si se filtraron por fechas
+            appendFechas= f" (Mes: {mes} - Año: {año})"
+
+        elif habilitarFiltrado.get() and filtradoFechas.get()==2:  #Revisar si se filtro por semanana, mes, año
+            appendFechas =  " ("+opcionesFiltrado.get()+")"
+        else:
+            appendFechas ="" #No añadir nada
 
         #Elegir la opción
         match seleccion:
+
             case 1: #Gráficos
-
-                if habilitarFiltrado.get() and filtradoFechas.get()==1:    #Revisar si se filtraron por fechas
-                    appendFechas= f" (Mes: {mes} - Año: {año})"
-
-                elif habilitarFiltrado.get() and filtradoFechas.get()==2:  #Revisar si se filtro por semanana, mes, año
-                    appendFechas =  " ("+opcionesFiltrado.get()+")"
-                else:
-                    appendFechas ="" #No añadir nada
                 
                 #Titulos gráficos:
                 titGraph = dataFrame.createGraph.__defaults__[0]+appendFechas
@@ -303,30 +303,30 @@ def obtener_seleccion():
 
             case 2: #Estadísticas
                 new_window = Toplevel()
-                new_window.resizable(False, False)
 
                 new_window.iconbitmap("iconos/icon.ico")
 
-                new_window.title("Estadísticas:")
-                estadisticas=dataFrame.stadistics()
-                results1 = Label(new_window, text="RESULTADOS OBTENIDOS", font=("Arial", 12, "bold"), fg="green")
-                resultado_label = Label(new_window, text=estadisticas, borderwidth=5, bg="White", justify='left', wraplength=200, font=("Helvetica", 13))
-                results1.grid(row=0, column=0, sticky="w")
-                resultado_label.grid(row=1,column=0)
+                new_window.title("Estadísticas:"+appendFechas)
+                
+                estadisticas=dataFrame.stadistics()[1]
+                # Crear la tabla utilizando la función
+                crear_tabla(new_window, estadisticas, font_size=15)
 
             case 3: #Ver data-Frame
                 df=dataFrame.section
                 new_window = Toplevel()
-                new_window.geometry("800x400")  # Establece el tamaño de la ventana a 400 píxeles de ancho y 300 píxeles de alto
+                
 
                 new_window.iconbitmap("iconos/tabla.ico")
                 new_window.title("DataFrame:")
 
                 # Crear un modelo de datos para PandasTable
-                modelo = TableModel(dataframe=df, columns=4)
+                modelo = TableModel(dataframe=df)
 
                 # Crear una tabla con PandasTable en la nueva ventana
                 tabla = Table(new_window, model=modelo, showtoolbar=True)
+                new_window.geometry("800x400")  # Establece el tamaño de la ventana a 400 píxeles de ancho y 300 píxeles de alto
+
                 tabla.show()
 
 #Actualizar fechas a filtrar
@@ -621,7 +621,7 @@ def showDataAnalisys():
 
     #Boton de continuar:
     boton_conti = Button(root, text="Continuar", command=obtener_seleccion,fg="green", bg="white")
-    boton_conti.grid(row=13, column=1, sticky="w")
+    boton_conti.grid(row=lastLine, column=1, sticky="w")
 
     # Estilos para los Radio Buttons
     estilo_radio = {
@@ -784,7 +784,6 @@ def chooseFunc(myDf=None):
     else:
         dataFrame = myDf
 
-
     showDataAnalisys()
 
 
@@ -792,7 +791,7 @@ def chooseFunc(myDf=None):
 def añadirDato():
     cerrar_ventanas()
     clearBeginScreen()
-    global  entry_monto, entry_concepto, guardado, listboxMeses, listboxDia, listboxAños, listboxCategoria
+    global  entry_monto, entry_concepto, listboxMeses, listboxDia, listboxAños, listboxCategoria
 
     # Extraer el año de la fecha actual
     año_actual = dt.datetime.now().year
@@ -812,24 +811,21 @@ def añadirDato():
     listboxCategoria = ttk.Combobox(root, values=categoria)
 
     label_monto = Label(root, text="Monto:")
-    entry_monto = Entry(root)
+    entry_monto = Entry(root, width=23)
 
     label_concepto = Label(root, text="Concepto:")
-    entry_concepto = Entry(root)
+    entry_concepto = Entry(root, width=23)
 
     # Asociar la función de actualización al evento de selección del primer ComboBox
     listboxMeses.bind("<FocusOut>", actualizarDia)
     listboxMeses.bind("<Return>", actualizarDia)
 
     # Botón para guardar los datos
-    boton_guardar = Button(root, text="Guardar", command=lambda:guardar_datos(False))
-
-    # Etiqueta para mostrar los datos ingresados
-    guardado = Label(root, text="")
+    boton_guardar = Button(root, text="Guardar", fg="green", bg="white",command=lambda:guardar_datos(False))
 
     # Colocar etiquetas y campos de entrada en la ventana
     label_mes.grid(row=0, column=0, sticky="w")
-    listboxMeses.grid(row=0, column=1)
+    listboxMeses.grid(row=0, column=1, padx=10)
 
     label_dia.grid(row=1, column=0, sticky="w")
     listboxDia.grid(row=1, column=1)
@@ -846,11 +842,28 @@ def añadirDato():
     label_concepto.grid(row=5, column=0, sticky="w")
     entry_concepto.grid(row=5, column=1)
 
-    boton_guardar.grid(row=12, column=0, columnspan=2)
-    guardado.grid(row=18, column=0)
+    boton_guardar.grid(row=lastLine, column=0, columnspan=2)
 
 #%% WIDGET MANAGEMENT:
 ##-----------------------------------------------------------------------------------------------------------------------------------------------------
+def crear_tabla(top, datos, font_size=12):
+    # Crear encabezados de columna con fondo verde para la primera línea
+    for col, encabezado in enumerate(datos[0]):
+        etiqueta = Label(top, text=encabezado, relief="ridge", bg='green', fg='white', font=("Arial", font_size, "bold"))
+        etiqueta.grid(row=0, column=col, sticky="nsew")
+
+    # Crear filas de datos
+    for row, fila in enumerate(datos[1:], start=1):
+        for col, valor in enumerate(fila):
+            etiqueta = Label(top, text=str(valor), relief="ridge", bg='white', font=("Arial", font_size))
+            etiqueta.grid(row=row, column=col, sticky="nsew")
+
+    # Configurar el peso de las filas y columnas para que se expandan con la ventana
+    for i in range(len(datos)):
+        top.grid_rowconfigure(i, weight=1)
+    for i in range(len(datos[0])):
+        top.grid_columnconfigure(i, weight=1)
+
 def cerrar_ventanas():
     # Función para cerrar todas las ventanas Toplevel
     for widget in root.winfo_children():
@@ -936,76 +949,74 @@ def actualizar_gif(frame):
 
 #%% MAIN:
 ##-----------------------------------------------------------------------------------------------------------------------------------------------------
-
-root= Tk()
-root.title("Hayek's app")
-root.iconbitmap("iconos/icon.ico")
-
-
-# Crear un menú
-menu_principal = Menu(root)
+if __name__== "__main__":
+    root= Tk()
+    root.title("Hayek's app")
+    root.iconbitmap("iconos/icon.ico")
+    root.resizable(False, False)
 
 
-root.config(menu=menu_principal)
-
-# Crear un menú desplegable "Opciones"
-menu_opciones = Menu(menu_principal)
-menu_principal.add_cascade(label="Opciones", menu=menu_opciones)
-menu_opciones.add_command(label="Abrir registro", command=chooseFunc)
-menu_opciones.add_command(label="Abrir archivo", command=habilitarFiltrado)
-menu_opciones.add_command(label="Añadir dato al registro manual", command=añadirDato)
+    # Crear un menú
+    menu_principal = Menu(root)
 
 
-# Crear un menú desplegable "Editar"
-menu_opciones = Menu(menu_principal)
-menu_principal.add_cascade(label="Editar", menu=menu_opciones)
-menu_opciones.add_command(label="Guardar nuevo concepto", command=guardarConcepto)
-menu_opciones.add_command(label="Eliminar concepto", command=eliminarConcepto)
-menu_opciones.add_command(label="Reiniciar registro de conceptos", command=lambda: borrar_contenido_archivo("conceptosGuardados.txt"))
-menu_opciones.add_command(label="Reiniciar contenido del registro", command=lambda: borrar_contenido_archivo("Registro.csv"))
+    root.config(menu=menu_principal)
 
-#Calculadora:
-calculadora = Menu(menu_principal, tearoff=0)
-menu_principal.add_cascade(label="Abrir calculadora", menu=calculadora)
-calculadora.add_command(label="Abrir calculadora", command=calculator)
+    # Crear un menú desplegable "Opciones"
+    menu_opciones = Menu(menu_principal)
+    menu_principal.add_cascade(label="Opciones", menu=menu_opciones)
+    menu_opciones.add_command(label="Abrir registro", command=chooseFunc)
+    menu_opciones.add_command(label="Abrir archivo", command=habilitarFiltrado)
+    menu_opciones.add_command(label="Añadir dato al registro manual", command=añadirDato)
 
 
-# Agregar una opción para salir del programa
-menu_opciones.add_separator()
-menu_opciones.add_command(label="Salir", command=root.destroy)
+    # Crear un menú desplegable "Editar"
+    menu_opciones = Menu(menu_principal)
+    menu_principal.add_cascade(label="Editar", menu=menu_opciones)
+    menu_opciones.add_command(label="Guardar nuevo concepto", command=guardarConcepto)
+    menu_opciones.add_command(label="Eliminar concepto", command=eliminarConcepto)
+    menu_opciones.add_command(label="Reiniciar registro de conceptos", command=lambda: borrar_contenido_archivo("conceptosGuardados.txt"))
+    menu_opciones.add_command(label="Reiniciar contenido del registro", command=lambda: borrar_contenido_archivo("Registro.csv"))
 
-# Botón de reinicio:
-boton_rst = Button(root, text="Reiniciar", command=rst,fg="green", bg="white")
-boton_rst.grid(row=13, column=0, sticky="w", pady=10, padx=5)
-
-image = Image.open("coin.gif")
-
-foto = ImageTk.PhotoImage(image)
-
-# Crear un widget de etiqueta para mostrar la imagen
-coin = Label(root, image=foto)
-coin.grid(row=0,column=0, padx=10, pady=10)
-# Inicia el ciclo de actualización del GIF
-actualizar_gif(0)
-
-#TODO:
-#myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
-#ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-
-# Etiqueta para mostrar la hora
+    #Calculadora:
+    calculadora = Menu(menu_principal, tearoff=0)
+    menu_principal.add_cascade(label="Abrir calculadora", menu=calculadora)
+    calculadora.add_command(label="Abrir calculadora", command=calculator)
 
 
-# Etiqueta para la fecha
-date_label = Label(root, font=('Bahnschrift', 16), foreground='black')
-date_label.grid(row=1, column=0, sticky="w")
+    # Agregar una opción para salir del programa
+    menu_opciones.add_separator()
+    menu_opciones.add_command(label="Salir", command=root.destroy)
 
-# Etiqueta para la hora
-time_label = Label(root, font=('Bahnschrift', 16),  foreground='black')
-time_label.grid(row=2, column=0, sticky="w")
+    # Botón de reinicio:
+    boton_rst = Button(root, text="Reiniciar", command=rst,fg="green", bg="white")
+    boton_rst.grid(row=lastLine, column=0, sticky="w", pady=10, padx=5)
+
+    image = Image.open("coin.gif")
+
+    foto = ImageTk.PhotoImage(image)
+
+    # Crear un widget de etiqueta para mostrar la imagen
+    coin = Label(root, image=foto)
+    coin.grid(row=0,column=0, padx=10, pady=10)
+    # Inicia el ciclo de actualización del GIF
+    actualizar_gif(0)
+
+    #TODO:
+    #myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
+    #ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
+    # Etiqueta para la fecha
+    date_label = Label(root, font=('Bahnschrift', 16), foreground='black')
+    date_label.grid(row=1, column=0, sticky="w")
+
+    # Etiqueta para la hora
+    time_label = Label(root, font=('Bahnschrift', 16),  foreground='black')
+    time_label.grid(row=2, column=0, sticky="w")
 
 
-# Iniciar la actualización de la fecha y hora
-update_datetime()
+    # Iniciar la actualización de la fecha y hora
+    update_datetime()
 
-root.mainloop()
+    root.mainloop()
 

@@ -1,9 +1,6 @@
 from fileManagement import *
 from numpy import pi, linspace, concatenate, degrees
-from PIL import Image, ImageTk
 import matplotlib.pyplot as plt
-import matplotlib as mpl
-
 import datetime as dt
 
 
@@ -45,7 +42,7 @@ class processData:
     #inputs:
     #   -categories: Categorias a añadir
     def addCategories(self, categories):
-        if (len(self.df) == len(categories)) and ("Categorias" not in self.df.columns): #Revisar que las categorías coinciden con el tamaño del DF
+        if (len(self.df) == len(categories)): #Revisar que las categorías coinciden con el tamaño del DF
         # Agregar una nueva columna al DataFrame
             self.df['Categorias'] = categories
 
@@ -156,7 +153,19 @@ class processData:
                          f"-Mediana: {mediana}\n" \
                          f"-Promedio gastado:\n{promedio}"
 
-        return results_string
+            # Datos de ejemplo para la tabla (2 columnas, 7 filas)
+        datos = [
+            ["Parametro", "Valor"],
+            ["Cantidad de transacciones", count],
+            ["Total gastado", sum],
+            ["Mínimo gastado", min],
+            ["Máximo gastado", max],
+            ["Desviación Estándar", desviacion],
+            ["Mediana", mediana],
+            ["Promedio gastado", promedio]
+        ]
+
+        return results_string, datos
     
     #getYearsList: Método para obtner una lista de los años de los que
     #se tiene regisro.
@@ -298,56 +307,3 @@ class processData:
         plt.savefig("resultados/histograma.png")
         plt.show()
         
-
-
-   
-#TestBench:
-#-----------------------------------------------------------------------------------------------------------------------------------------------------
-"""misArchivos         = encontrarArchivos(ruta_carpeta)
-
-
-import random
-categorias=["Entretenimiento", "Transporte", "Comida", "Otros"]
-
-# Create the pandas DataFrame
-#df1 = createDataFrame(misArchivos[0], "BAC ahorros" )    #DONE
-df2 = createDataFrame(misArchivos[1], "BAC cred"    )    #DONE
-#df3 = createDataFrame(misArchivos[2], "BCR ahorros" )
-#df4 = createDataFrame(misArchivos[3], "BCR cred"    )         
-#df5 = createDataFrame(misArchivos[4], "PROMERICA"   )     
-
-#df1= processData(df1, "BAC ahorros")
-df2= processData(df2, "BAC cred")
-#df3= processData(df3, "BCR ahorros")
-#df4= processData(df4, "BCR cred")
-#df5= processData(df5, "PROMERICA")
-#array_aleatorio = random.choices(categorias, k=len(df5.df))
-#df5.addCategories(array_aleatorio)
-#df5.guardar_csv()
-
-# print dataframe.
-#print(df1.df, "\n")
-#print(df2.df, "\n")
-#print(df3.df, "\n")
-#print(df4.df, "\n")
-#print(df5.df, "\n")
-
-
-#dff=processData(archivo="Registro.csv")
-#año_deseado = 2023
-#mes_deseado = 8
-#dff.chooseSegment(8, 2023)
-
-cat = [ random.choice(categorias) for _ in range(len(df2.section))]
-print(cat)
-df2.addCategories(cat)
-df2.createGraph()
-df2.boxGraph()
-df2.categPlot()
-
-#print(df2.df)
-#
-#print(dff.getYearsList())
-#print(dff.getMonthList())
-#
-#print(dff.section)"""

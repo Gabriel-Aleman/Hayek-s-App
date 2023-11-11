@@ -37,8 +37,6 @@ def eliminar_Valor():
         messagebox.showinfo("Exito", "Se eliminaron los datos existosamente.")
         ventana.destroy()
         
-
-
 # Crear la ventana principal
 def eliminarConcepto():
     global combo, ventana, conceptosGuardados
