@@ -306,4 +306,28 @@ class processData:
         plt.grid(axis='y')
         plt.savefig("resultados/histograma.png")
         plt.show()
-        
+    
+    def gastoXmes(self, miTitulo="Gasto por categorias", year=None):
+
+
+
+        # Filtrar por año si se proporciona
+        if year:
+            miSeccion = self.section[self.section['Fecha'].dt.year == year]
+        else:
+            miSeccion =self.section
+
+        # Agrupar por mes y sumar los gastos
+        gasto_por_mes = miSeccion.groupby(miSeccion['Fecha'].dt.to_period("M"))['Monto'].sum()
+
+        # Crear el gráfico de barras
+        plt.figure(figsize=(10, 6))
+        gasto_por_mes.plot(kind='bar', color='red')
+        plt.title(miTitulo, fontweight='bold')
+        plt.xlabel('Mes')
+        plt.ylabel('Gasto')
+        plt.grid(axis="y")
+
+        # Inclinar las etiquetas de fecha en 5 grados
+        plt.xticks(rotation=25)
+        plt.show()

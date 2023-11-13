@@ -39,32 +39,27 @@ notebook.bind("<<NotebookTabChanged>>", mostrar_contenido)
 
 root.mainloop()
 """
-from tkinter import *
+import pandas as pd
+import matplotlib.pyplot as plt
 
-from tkinter import *
+# Supongamos que tienes un DataFrame llamado 'df' con una columna de fechas 'Fecha' y otra de gastos 'Gasto'
+# Asegúrate de tener estas dos columnas en tu DataFrame
 
+# Ejemplo de cómo podría ser tu DataFrame
+data = {'Fecha': ['2022-01-15', '2022-02-20', '2022-03-10', '2023-01-05', '2023-02-18'],
+        'Gasto': [100, 150, 200, 120, 180]}
 
+df = pd.DataFrame(data)
+df['Fecha'] = pd.to_datetime(df['Fecha'])  # Asegúrate de que la columna de fechas sea de tipo datetime
 
-def main():
-    root = Tk()
-    root.title("Tabla en Tkinter")
+# Agrupa los datos por mes y suma los gastos
+df['Mes'] = df['Fecha'].dt.to_period('M')  # Agrega una columna de Mes
+gastos_por_mes = df.groupby('Mes')['Gasto'].sum()
 
-    # Datos de ejemplo para la tabla (2 columnas, 7 filas)
-    datos = [
-        ["Parametro", "Valor"],
-        ["Juan", 25],
-        ["María", 30],
-        ["Carlos", 22],
-        ["Ana", 28],
-        ["Luis", 35],
-        ["Laura", 29],
-        ["Pedro", 31]
-    ]
-
-    # Crear la tabla utilizando la función
-    crear_tabla(root, datos)
-
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
+# Crea un gráfico de barras para visualizar los gastos por mes
+plt.figure(figsize=(10, 6))
+gastos_por_mes.plot(kind='bar', color='skyblue')
+plt.title('Gasto por Mes')
+plt.xlabel('Mes')
+plt.ylabel('Gasto ($)')
+plt.show()

@@ -292,6 +292,8 @@ def obtener_seleccion():
                             dataFrame.categPlot(miTitulo=titCat, pie=False)
                         case 5:
                             dataFrame.hist(miTitulo=titHist, defBins=bins)
+                        case 7:
+                            dataFrame.gastoXmes(year=miYear)
                         case 6:
                             dataFrame.createGraph(miTitulo=titGraph)
                             dataFrame.categPlot(miTitulo=titCat)
@@ -299,6 +301,10 @@ def obtener_seleccion():
                             dataFrame.boxGraph(miTitulo=titBox)
                             askGrid()
                             dataFrame.hist(miTitulo=titHist, defBins=bins)
+                            
+                            if not habilitarFiltrado.get():
+                                askAño()
+                                dataFrame.gastoXmes(year=miYear)
 
 
             case 2: #Estadísticas
@@ -341,15 +347,8 @@ def submitDates():
         radio_buttonDF.config(state=NORMAL)
         boton_conti.config(state=NORMAL)
 
-        botonesGrafico(NORMAL)
+        botonesGrafico(NORMAL, exceptMes=True)
 
-    else:
-        radio_buttonGraficos.config(state=DISABLED)
-        radio_buttonEstadistics.config(state=DISABLED)
-        radio_buttonDF.config(state=DISABLED)
-        boton_conti.config(state=DISABLED)
-
-        botonesGrafico(DISABLED)
 
 #Actualizar mes
 def addFechasMes(showData=True):
@@ -430,23 +429,19 @@ def toggle_listbox():
 def chooseFilter():
     op = opcionesFiltrado.get()
     print(op)
-    if op not in opcionesFil:
-        messagebox.showerror("Error", "Debe seleccionar un rango valido.")
 
-        radio_buttonGraficos.config(state=DISABLED)
-        radio_buttonEstadistics.config(state=DISABLED)
-        radio_buttonDF.config(state=DISABLED)
-        boton_conti.config(state=DISABLED)
-
-        botonesGrafico(DISABLED)
-    else:
+    if op in opcionesFil:
         dataFrame.chooseSegmentSimple(op)
         radio_buttonGraficos.config(state=NORMAL)
         radio_buttonEstadistics.config(state=NORMAL)
         radio_buttonDF.config(state=NORMAL)
         boton_conti.config(state=NORMAL)
+        botonesGrafico(NORMAL, exceptMes=True)
 
-        botonesGrafico(NORMAL)
+
+    else:
+        messagebox.showerror("Error", "Debe seleccionar un rango valido.")
+
 
 #FILTRADO SIMPLE:
 def filtradoSimpleFunc():
@@ -455,6 +450,7 @@ def filtradoSimpleFunc():
     print(filtradoFechas.get())
 
     disable()
+    botonesGrafico(DISABLED)
 
     try:
         borrarSimple()
@@ -476,11 +472,12 @@ def filtradoSimpleFunc():
 
 #FILTRADO AVANZADO:
 def filtradoAvanzadoFunc():
-    global checkbox_var, checkbox, labelAño, labelMes, mesEntry, añoEntry, buttonDone, yrs, listboxMeses, listboxAños
+    global checkbox_var, checkbox, labelAño, labelMes, mesEntry, añoEntry, buttonDone, listboxMeses, listboxAños
     print("LLAMANDO filtradoAvanzado")
     print(filtradoFechas.get())
 
     disable()
+    botonesGrafico(DISABLED)
 
     try:
         borrarAvanzado()
@@ -489,9 +486,6 @@ def filtradoAvanzadoFunc():
     try:
         borrarSimple()
     except: pass
-
-
-    yrs = dataFrame.getYearsList()   # Lista de años
 
 
     listboxMeses = ttk.Combobox(root, values=meses)
@@ -519,10 +513,7 @@ def filtradoAvanzadoFunc():
 
 #Filtrar datos check:
 def checkButt():
-
     print(filtradoFechas.get())
-
-
 
     #Se quiere filtrar datos:
     if habilitarFiltrado.get():
@@ -614,10 +605,10 @@ def showDataAnalisys():
     radio_buttonGraficos.grid(row=8, column=0, sticky='w')
 
     radio_buttonEstadistics = Radiobutton(root, text="Observar estádisticas", variable=elegirFuncion, value=2, command=botonesGraficoForget)
-    radio_buttonEstadistics.grid(row=11, column=0, sticky='w')
+    radio_buttonEstadistics.grid(row=12, column=0, sticky='w')
 
     radio_buttonDF = Radiobutton(root, text="Ver data-frame", variable=elegirFuncion, value=3, command=botonesGraficoForget)
-    radio_buttonDF.grid(row=12, column=0, sticky='w')
+    radio_buttonDF.grid(row=13, column=0, sticky='w')
 
     #Boton de continuar:
     boton_conti = Button(root, text="Continuar", command=obtener_seleccion,fg="green", bg="white")
@@ -648,9 +639,23 @@ def watch(locBin, window):
         bins = locBinInt
         window.destroy()
 
+def watch1(años, window):
+    global miYear
+    try:
+        miYear1 = int(años.get())
+        print(miYear1 in yrs)
+    except:
+        messagebox.showerror("Error", "Asegurese de ingresar un año valido")
+    else:
+        if miYear1 in yrs:
+            miYear = miYear1
+            messagebox.showinfo("Exito", "Se hizo el cambio existosamente.")
+            window.destroy()
+        else:
+            messagebox.showerror("Error", "Asegurese de ingresar un año valido")
+
 #Preguntar al usuario si desea cambiar los grids del histograma:
 def askGrid():
-    global bins
 
     answer = messagebox.askyesno("Cambiar bins", "¿Desea cambiar el número predeterminado de divisiones?")
     if answer:
@@ -658,18 +663,42 @@ def askGrid():
         nueva_ventana.resizable(False, False)
 
         nueva_ventana.iconbitmap("iconos/icon.ico")
-
+        label=Label(nueva_ventana, text="-Ingrese las divisiones: ")
+        label.grid(row=0, column=0, sticky="w", padx=25, pady=5)
         binsAsk=Entry(nueva_ventana, width=20)
-        binsAsk.insert(0, "Cantidad de divisiones")  # Insertar el texto inicial en la entrad
-        binsAsk.pack()
-        continuar = Button(nueva_ventana, text="Continuar", bg="green", fg="white",  command= lambda: watch(binsAsk, nueva_ventana), width=15)
-        continuar.pack()
+        binsAsk.grid(row=1, column=0, pady=5)
+        continuar = Button(nueva_ventana, text="Continuar", bg="green", fg="white",  command= lambda: watch(binsAsk, nueva_ventana), width=16)
+        continuar.grid(row=2, column=0, pady=5)
     else:
+        global bins
         bins = dataFrame.hist.__defaults__[1]
+
+
+#Preguntar al usuario si desea cambiar el año
+def askAño():
+    if len(yrs) > 1:
+        answer = messagebox.askyesno("Elegir año", "¿Desea seleccionar un año concreto?")
+        if answer:
+            nueva_ventana= Toplevel()
+            nueva_ventana.resizable(False, False)
+
+            nueva_ventana.iconbitmap("iconos/icon.ico")
+
+            label=Label(nueva_ventana, text="-Ingrese el año: ")
+            label.grid(row=0, column=0, sticky="w", padx=25, pady=5)
+
+            miAño=ttk.Combobox(nueva_ventana, values=yrs)
+            miAño.grid(row=1, column=0, pady=5, padx=10)
+
+            continuar = Button(nueva_ventana, text="Continuar", bg="green", fg="white",  command=lambda: watch1(miAño, nueva_ventana), width=20)
+            continuar.grid(row=2, column=0, pady=5)
+        else:
+            global miYear
+            miYear = dataFrame.gastoXmes.__defaults__[1]
 
 #Elegir tipo de gráfico a desplegar:
 def chekOps():
-    global botonPlot, botonAll, botonBox, botonPie, botonCat, botonHist, tipoGrafico
+    global botonPlot, botonAll, botonBox, botonPie, botonCat, botonHist, botonGastoPorMes, tipoGrafico
 
     tipoGrafico = IntVar()
 
@@ -688,8 +717,10 @@ def chekOps():
     botonHist    = Radiobutton(root, text="Histograma de gastos",        variable=tipoGrafico, value=5, fg="green", command=askGrid)
     botonHist.grid(row=9, column=3, sticky="W")
 
+    botonGastoPorMes    = Radiobutton(root, text="Gasto por mes",        variable=tipoGrafico, value=7, fg="green", command=askAño)
+    botonGastoPorMes.grid(row=10, column=3, sticky="W")
     botonAll    = Radiobutton(root, text="todos",                       variable=tipoGrafico, value=6, fg="green")
-    botonAll.grid(row=10, column=3, sticky="W")
+    botonAll.grid(row=11, column=1, sticky="W")
 
 #%%Añadir datos manualmente
 
@@ -773,16 +804,17 @@ def habilitarFiltrado():
 
 #Abrir registro:
 def chooseFunc(myDf=None):
+    global dataFrame, yrs
 
     cerrar_ventanas()
     clearBeginScreen()
-
-    global dataFrame
 
     if myDf==None:
         dataFrame=processData(archivo="Registro.csv")
     else:
         dataFrame = myDf
+
+    yrs = dataFrame.getYearsList()   # Lista de años
 
     showDataAnalisys()
 
@@ -880,7 +912,7 @@ def update_datetime():
 
     root.after(1000, update_datetime)
 #Habilitar o inhabilitar los botones para la opción de gráficos
-def botonesGrafico(miEstado):
+def botonesGrafico(miEstado, exceptMes=False):
     try:
         botonPlot.config(state=miEstado)
         botonPie.config (state=miEstado)
@@ -888,6 +920,10 @@ def botonesGrafico(miEstado):
         botonCat.config (state=miEstado)
         botonHist.config (state=miEstado)
         botonAll.config (state=miEstado)
+
+        if not exceptMes: 
+            botonGastoPorMes.config(state=miEstado)
+
     except: pass
 #Borrar existencia de los botones de elección de gráfico
 def botonesGraficoForget():
@@ -897,6 +933,7 @@ def botonesGraficoForget():
         botonBox.grid_forget()
         botonCat.grid_forget()
         botonHist.grid_forget()
+        botonGastoPorMes.grid_forget()
         botonAll.grid_forget()
     except: pass
 
