@@ -1,11 +1,14 @@
 #Librerias
 #-----------------------------------------------------------------------------------------------------------------------------------------------------
+import ctypes
+
 from calculadora import *
 from dataAnalisys import *
 
 from tkinter import ttk, messagebox, filedialog
 from pandastable import Table, TableModel
 from PIL import Image, ImageTk
+
 
 #Variables globales:
 #-----------------------------------------------------------------------------------------------------------------------------------------------------

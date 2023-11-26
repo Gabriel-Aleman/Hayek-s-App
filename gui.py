@@ -138,7 +138,7 @@ def checkExtent(archivo1, extension1):
     ruta_labelRes.config(text=f"{archivo1}")
     exte_labelRes.config(text=f"{extension1}")
     tipo_label.grid(row=5, column=0, sticky="w")
-    submitButton.grid(row=6, column=0, sticky="w")
+    submitButton.grid(row=6, column=0, sticky="w", padx=5)
     tipo_combobox.grid(row=5, column=1, sticky="w")
 
     extension= extension1
@@ -519,6 +519,7 @@ def checkButt():
 
     #Se quiere filtrar datos:
     if habilitarFiltrado.get():
+        filtradoFechas.set(1)
         disable()
 
         #INHABILITAR GRÁFICOS
@@ -533,9 +534,6 @@ def checkButt():
 
 
     else:
-        filtradoFechas.set(1)
-        filtradoAvanzado.grid_forget()
-        filtradoSimple.grid_forget()
         unableFilter()
 
 #INHABILITAR OPCIONES:
@@ -993,6 +991,10 @@ def actualizar_gif(frame):
 if __name__== "__main__":
     root= Tk()
     root.title("Hayek's app")
+
+    myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
     root.iconbitmap("./iconos/icon.ico")
     root.resizable(False, False)
 
@@ -1000,10 +1002,10 @@ if __name__== "__main__":
     # Crear un menú
     menu_principal = Menu(root)
 
-
     root.config(menu=menu_principal)
 
     # Crear un menú desplegable "Opciones"
+    #----------------------------------------------------------------------------------------------------------
     menu_opciones = Menu(menu_principal)
     menu_principal.add_cascade(label="Opciones", menu=menu_opciones)
     menu_opciones.add_command(label="Abrir registro", command=chooseFunc)
@@ -1015,6 +1017,7 @@ if __name__== "__main__":
     menu_opciones.add_command(label="Salir", command=root.destroy)
 
     # Crear un menú desplegable "Editar"
+    #----------------------------------------------------------------------------------------------------------
     menu_opciones = Menu(menu_principal)
     menu_principal.add_cascade(label="Editar", menu=menu_opciones)
     menu_opciones.add_command(label="Guardar nuevo concepto", command=guardarConcepto)
@@ -1023,6 +1026,7 @@ if __name__== "__main__":
     menu_opciones.add_command(label="Reiniciar contenido del registro", command=lambda: borrar_contenido_archivo("Registro.csv"))
 
     #Calculadora:
+    #----------------------------------------------------------------------------------------------------------
     calculadora = Menu(menu_principal, tearoff=0)
     menu_principal.add_cascade(label="Abrir calculadora", menu=calculadora)
     calculadora.add_command(label="Abrir calculadora", command=calculator)
@@ -1044,9 +1048,7 @@ if __name__== "__main__":
     # Inicia el ciclo de actualización del GIF
     actualizar_gif(0)
 
-    #TODO:
-    #myappid = 'mycompany.myproduct.subproduct.version' # arbitrary string
-    #ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+  
 
     # Etiqueta para la fecha
     date_label = Label(root, font=('Bahnschrift', 16), foreground='black')
