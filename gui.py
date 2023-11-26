@@ -132,7 +132,7 @@ def toggle_listbox_state():
     else:
         archivosEnCarpeta.grid_forget() # Deshabilitar el ListBox
 
-
+#Revisar extensión:
 def checkExtent(archivo1, extension1):
     global archivo, extension
     ruta_labelRes.config(text=f"{archivo1}")
@@ -144,7 +144,7 @@ def checkExtent(archivo1, extension1):
     extension= extension1
     archivo  = archivo1
     
-
+#Seleccionar archivo de la carpeta predeterminada:
 def seleccionarDeCarpeta(event):
     seleccion = archivosEnCarpeta.curselection()
 
