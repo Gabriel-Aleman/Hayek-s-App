@@ -313,9 +313,9 @@ class processData:
 
         # Filtrar por año si se proporciona
         if year:
-            miSeccion = self.section[self.section['Fecha'].dt.year == year]
+            miSeccion = (self.section[self.section['Fecha'].dt.year == year]).copy()
         else:
-            miSeccion =self.section
+            miSeccion =self.section.copy()
 
         # Agrupar por mes y sumar los gastos
         gasto_por_mes = miSeccion.groupby(miSeccion['Fecha'].dt.to_period("M"))['Monto'].sum()

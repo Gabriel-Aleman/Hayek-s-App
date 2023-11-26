@@ -240,7 +240,7 @@ def abrirArchivo():
     buttonSave.grid(row=lastLine, column=1, sticky="w",  pady=10)
 
     buttonProcesar    = Button(root, text="Analizar estos datos", command = lambda: proccessFile(df1), fg="green", bg="white", font=("Bold",9))
-    buttonProcesar.grid(row=lastLine, column=2, sticky="w",  pady=10)
+    buttonProcesar.grid(row=lastLine, column=2, sticky="w",  pady=10, padx=5)
 
     buttonSave.config(state="disabled")
     buttonProcesar.config(state="disabled")
@@ -407,6 +407,8 @@ def toggle_listbox():
 
     #Mostrar opciones de fechas
     if checkbox_var.get():
+
+
         myLabel0 = Label(root, text="Meses:")
         myLabel1 = Label(root, text="Años:")
         
@@ -531,6 +533,7 @@ def checkButt():
 
 
     else:
+        filtradoFechas.set(1)
         filtradoAvanzado.grid_forget()
         filtradoSimple.grid_forget()
         unableFilter()
@@ -612,7 +615,7 @@ def showDataAnalisys():
 
     #Boton de continuar:
     boton_conti = Button(root, text="Continuar", command=obtener_seleccion,fg="green", bg="white")
-    boton_conti.grid(row=lastLine, column=1, sticky="w")
+    boton_conti.grid(row=lastLine, column=1, sticky="w", padx=5)
 
     # Estilos para los Radio Buttons
     estilo_radio = {
@@ -625,7 +628,7 @@ def showDataAnalisys():
     filtradoSimple = Radiobutton(root, text="Filtrado simple", variable=filtradoFechas, value=2, command=filtradoSimpleFunc, **estilo_radio)
 
 
-#Cambiar bins del histograma
+#Cambiar bins del histograma:
 def watch(locBin, window):
     global bins
     binEntry = locBin.get()
@@ -639,6 +642,7 @@ def watch(locBin, window):
         bins = locBinInt
         window.destroy()
 
+#Cambiar año:
 def watch1(años, window):
     global miYear
     try:
@@ -901,7 +905,7 @@ def cerrar_ventanas():
     for widget in root.winfo_children():
         if isinstance(widget, Toplevel):
             widget.destroy()
-
+#Actualizar fecha:
 def update_datetime():
     current_datetime = dt.datetime.now()
     current_date = current_datetime.strftime('•Fecha: %Y-%m-%d')
@@ -989,7 +993,7 @@ def actualizar_gif(frame):
 if __name__== "__main__":
     root= Tk()
     root.title("Hayek's app")
-    root.iconbitmap("iconos/icon.ico")
+    root.iconbitmap("./iconos/icon.ico")
     root.resizable(False, False)
 
 
@@ -1005,7 +1009,10 @@ if __name__== "__main__":
     menu_opciones.add_command(label="Abrir registro", command=chooseFunc)
     menu_opciones.add_command(label="Abrir archivo", command=habilitarFiltrado)
     menu_opciones.add_command(label="Añadir dato al registro manual", command=añadirDato)
-
+    
+    # Agregar una opción para salir del programa
+    menu_opciones.add_separator()
+    menu_opciones.add_command(label="Salir", command=root.destroy)
 
     # Crear un menú desplegable "Editar"
     menu_opciones = Menu(menu_principal)
@@ -1021,9 +1028,7 @@ if __name__== "__main__":
     calculadora.add_command(label="Abrir calculadora", command=calculator)
 
 
-    # Agregar una opción para salir del programa
-    menu_opciones.add_separator()
-    menu_opciones.add_command(label="Salir", command=root.destroy)
+
 
     # Botón de reinicio:
     boton_rst = Button(root, text="Reiniciar", command=rst,fg="green", bg="white")
